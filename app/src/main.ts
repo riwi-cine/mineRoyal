@@ -1,22 +1,20 @@
 import { NestFactory } from '@nestjs/core';
-import { AppModule, ObserveInstrument } from './app.module.js';
+import { AppModule } from './app.module.js';
 import {
   DocumentBuilder,
   SwaggerModule,
-} from '@nestjs/swagger'; 
+} from '@nestjs/swagger';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule, {
-    instrument: ObserveInstrument,
-  });
+  const app = await NestFactory.create(AppModule);
 
   /**
    * Configuración principal de la documentación OpenAPI.
    */
   const swaggerConfig = new DocumentBuilder()
-    .setTitle('mimeRoyal v2')
+    .setTitle('mineRoyal v2')
     .setDescription(
-      'swagger for mimeRoyal cinema API',
+      'Swagger for mineRoyal cinema API',
     )
     .setVersion('2.0.0')
     .build();
@@ -41,6 +39,9 @@ async function bootstrap() {
     app,
     documentFactory,
   );
-  await app.listen(process.env.PORT ?? 3000);
+  const port = process.env.PORT ?? 3000
+  await app.listen(port);
+  console.log(`Server is running on: http://localhost:${port}`)
+  console.log(`Swagger documentation: http://localhost:${port}/docs`)
 }
 await bootstrap();

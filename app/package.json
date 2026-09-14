@@ -1,6 +1,7 @@
 {
-  "name": "riwi-cine-api",
-  "version": "1.0.0",
+  "name": "mineRoyal",
+  "version": "2.0.0",
+  "type": "module",
   "description": "Backend NestJS + TypeORM arquitectura screaming/clean",
   "license": "UNLICENSED",
   "private": true,
