@@ -65,7 +65,6 @@ describe('Location selection (e2e happy path)', () => {
     await app.init();
   });
 
-
   afterAll(async () => {
     await app.close();
   });

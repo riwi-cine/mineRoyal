@@ -1,14 +1,13 @@
 {
   "compilerOptions": {
-    "module": "commonjs",
-    "moduleResolution": "node",
-    "esModuleInterop": true,
+    "module": "node16",
+    "moduleResolution": "node16",
+    "isolatedModules": true,
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
     "target": "ES2022",
     "sourceMap": true,
     "outDir": "./dist",
-    "rootDir": "./src",
     "strict": true,
     "strictPropertyInitialization": false,
     "skipLibCheck": true,
@@ -17,6 +16,6 @@
     "types": ["node", "jest"],
     "lib": ["ES2022"]
   },
-  "include": ["src/**/*.ts"],
+  "include": ["src/**/*.ts", "test/**/*.ts"],
   "exclude": ["node_modules", "dist"]
 }
