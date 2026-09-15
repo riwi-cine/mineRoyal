@@ -1,4 +1,13 @@
-import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
+import {
+  Column,
+  CreateDateColumn,
+  Entity,
+  JoinColumn,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+  UpdateDateColumn,
+} from 'typeorm';
+import { Room } from './room.entity.js';
 
 @Entity('seats')
 export class Seats {
@@ -7,6 +16,10 @@ export class Seats {
 
   @Column({ name: 'room_id', type: 'uuid' })
   roomId!: string;
+
+  @ManyToOne(() => Room, (room) => room.seats, { onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'room_id' })
+  room?: Room;
 
   @Column({ type: 'varchar', length: 5 })
   row!: string;
