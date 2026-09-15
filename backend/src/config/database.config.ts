@@ -13,5 +13,3 @@ export const typeOrmConfig = (config: ConfigService): TypeOrmModuleOptions => ({
   namingStrategy: new SnakeCaseNamingStrategy(),
   synchronize: false,
 });
-
-
