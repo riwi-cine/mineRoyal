@@ -1,43 +1,47 @@
+import { ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { AppModule } from './app.module.js';
-import { DocumentBuilder,SwaggerModule } from '@nestjs/swagger';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
+  app.useGlobalPipes(
+    new ValidationPipe({
+      whitelist: true,
+      forbidNonWhitelisted: true,
+      transform: true,
+    }),
+  );
+
   /**
-   * Main configuration of OpenAPI.
+   * Configuración principal de la documentación OpenAPI.
    */
   const swaggerConfig = new DocumentBuilder()
-    .setTitle('mineRoyal v2')
-    .setDescription(
-      'Swagger for mineRoyal cinema API',
-    )
+    .setTitle('mimeRoyal v2')
+    .setDescription('swagger for mimeRoyal cinema API')
     .setVersion('2.0.0')
+    .addBearerAuth()
     .build();
 
   /**
-   * Generate a documentation OpenAPI
-   * of controllers and services.
+   * Genera el documento OpenAPI a partir
+   * de los controllers y endpoints registrados.
    */
-  const documentFactory = () =>
-    SwaggerModule.createDocument(
-      app,
-      swaggerConfig,
-    );
+  const documentFactory = () => SwaggerModule.createDocument(app, swaggerConfig);
 
   /**
+   * Expone Swagger UI en:
    *
-   * http://localhost:3000/docs
+   * http://localhost:3000/api
    */
-  SwaggerModule.setup(
-    'docs',
-    app,
-    documentFactory,
-  );
+  SwaggerModule.setup('docs', app, documentFactory);
   const port = process.env.PORT ?? 3000
   await app.listen(port);
   console.log(`Server is running on: http://localhost:${port}`)
   console.log(`Swagger documentation: http://localhost:${port}/docs`)
 }
-await bootstrap();
+bootstrap().catch((error: unknown) => {
+  console.error('Error al iniciar la aplicación:', error);
+  process.exitCode = 1;
+});
