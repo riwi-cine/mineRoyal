@@ -5,12 +5,23 @@ import {
   JoinColumn,
   ManyToOne,
   PrimaryGeneratedColumn,
+  Unique,
   UpdateDateColumn,
 } from 'typeorm';
 import { z } from 'zod';
 import { Room } from './room.entity.js';
 
+/**
+ * Canonical seat categories. Single source of truth reused by the entity's
+ * `seatType` column and by the seat-map DTOs (HU-010) so both layers agree
+ * on the same set of values instead of drifting into free-form aliases.
+ */
+export const seatCategorySchema = z.enum(['STANDARD', 'VIP', 'PREFERENTIAL', 'DISABLED']);
+export type SeatCategory = z.infer<typeof seatCategorySchema>;
+export const SEAT_CATEGORIES = seatCategorySchema.options;
+
 @Entity('seats')
+@Unique(['roomId', 'row', 'number'])
 export class Seats {
   @PrimaryGeneratedColumn('uuid')
   id!: string;
@@ -29,7 +40,7 @@ export class Seats {
   number!: string;
 
   @Column({ name: 'seat_type', type: 'varchar', length: 30 })
-  seatType!: string;
+  seatType!: SeatCategory;
 
   @CreateDateColumn({ name: 'created_at' })
   createdAt!: Date;
@@ -46,7 +57,7 @@ export const seatSchema = z.object({
   roomId: z.string().uuid(),
   row: z.string().min(1).max(5),
   number: z.string().min(1).max(5),
-  seatType: z.string().min(1).max(30),
+  seatType: seatCategorySchema,
   createdAt: z.date(),
   updatedAt: z.date(),
 });

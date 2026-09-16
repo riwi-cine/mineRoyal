@@ -10,6 +10,7 @@ import {
   ReservationSummary,
   ReservationSummaryLine,
   SeatCategory,
+  seatCategorySchema,
   SeatMap,
   SeatMapItem,
   SeatStatus,
@@ -26,22 +27,12 @@ const LOCK_DURATION_MINUTES = 10;
 const MAX_SEATS_PER_RESERVATION = 10;
 
 /**
- * Normalizes the free-form `seatType` stored in the `seats` table into one
- * of the categories known by the frontend.
+ * `seatType` is now constrained to `SeatCategory` at the entity/DB level
+ * (see seat.entity.ts), so this only guards against legacy/unexpected values.
  */
 const toCategory = (seatType: string | null | undefined): SeatCategory => {
-  const value = (seatType ?? '').trim().toUpperCase();
-
-  if (['VIP'].includes(value)) {
-    return 'VIP';
-  }
-  if (['PREFERENTIAL', 'PREFERENCIAL', 'MOVILIDAD REDUCIDA'].includes(value)) {
-    return 'PREFERENTIAL';
-  }
-  if (['DISABLED', 'INHABILITADA', 'INHABILITADO', 'BLOQUEADA'].includes(value)) {
-    return 'DISABLED';
-  }
-  return 'STANDARD';
+  const parsed = seatCategorySchema.safeParse(seatType);
+  return parsed.success ? parsed.data : 'STANDARD';
 };
 
 /**

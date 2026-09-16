@@ -1,5 +1,6 @@
 import { createZodDto } from 'nestjs-zod';
 import { z } from 'zod';
+import { seatCategorySchema } from '../../domain/entities/seat.entity.js';
 
 /** Estado de una silla dentro del mapa de la sala. */
 export const seatStatusSchema = z.enum([
@@ -11,14 +12,9 @@ export const seatStatusSchema = z.enum([
 ]);
 export type SeatStatus = z.infer<typeof seatStatusSchema>;
 
-/** Categoría de la silla, usada para la representación visual y el precio. */
-export const seatCategorySchema = z.enum([
-  'STANDARD',
-  'VIP',
-  'PREFERENTIAL', // Movilidad reducida
-  'DISABLED',
-]);
-export type SeatCategory = z.infer<typeof seatCategorySchema>;
+/** Categoría de la silla, usada para la representación visual y el precio (definida en el dominio del Asiento). */
+export { seatCategorySchema };
+export type { SeatCategory } from '../../domain/entities/seat.entity.js';
 
 /**
  * Esquema de una silla del mapa de la sala con su estado calculado en tiempo real.
