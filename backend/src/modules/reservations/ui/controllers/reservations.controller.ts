@@ -1,13 +1,13 @@
 import { Body, Controller, Delete, Get, ParseUUIDPipe, Post, Query } from '@nestjs/common';
 import { ApiBody, ApiOperation, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { SeatService } from '../../application/services/seat.service.js';
+import { SeatService } from '../../../seats/application/services/seat.service.js';
 import {
   LockSeatsDto,
   LockSeatsResult,
   ReleaseSeatsDto,
   ReleaseSeatsResult,
   ReservationSummary,
-} from '../../application/dtos/seat-map.dto.js';
+} from '../../../seats/application/dtos/seat-map.dto.js';
 
 /**
  * Reservation flow of HU-010: temporarily locking seats while the user

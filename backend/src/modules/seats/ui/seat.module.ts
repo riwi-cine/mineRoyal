@@ -10,7 +10,7 @@ import { SeatRepository } from '../infrastructure/dao/seat.dao.js';
 import { SeatService } from '../application/services/seat.service.js';
 import { SeatController } from './controllers/seat.controller.js';
 import { FunctionSeatsController } from './controllers/function-seats.controller.js';
-import { ReservationsController } from './controllers/reservations.controller.js';
+import { ReservationsController } from '../../reservations/ui/controllers/reservations.controller.js';
 
 @Module({
   // Room/RoomType are registered here (not just referenced via relations) so TypeORM's
