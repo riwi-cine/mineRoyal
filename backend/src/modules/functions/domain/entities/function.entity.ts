@@ -1,9 +1,10 @@
 import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import { z } from 'zod';
 import { Room } from '../../../seats/domain/entities/room.entity.js';
 import { FunctionType } from './function-type.entity.js';
 
 @Entity('functions')
-export class Function {
+export class CinemaFunction {
   @PrimaryGeneratedColumn('uuid')
   id!: string;
 
@@ -33,3 +34,27 @@ export class Function {
   @Column({ type: 'boolean', default: true })
   active!: boolean;
 }
+
+/**
+ * Esquema base que representa un registro completo de Función en la base de datos
+ */
+export const functionSchema = z.object({
+  id: z.string().uuid(),
+  movieId: z.string().uuid(),
+  roomId: z.string().uuid(),
+  functionTypeId: z.string().uuid(),
+  startsAt: z.date(),
+  basePrice: z.coerce.number().nonnegative(),
+  active: z.boolean().default(true),
+});
+
+/**
+ * Esquema para validar los datos necesarios al crear una nueva Función
+ */
+export const createFunctionSchema = functionSchema.omit({
+  id: true,
+});
+
+// Tipos inferidos a partir de los esquemas de Zod
+export type FunctionInput = z.infer<typeof functionSchema>;
+export type CreateFunctionInput = z.infer<typeof createFunctionSchema>;

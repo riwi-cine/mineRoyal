@@ -3,9 +3,9 @@ import { ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { CityResponseDto } from '../../application/dtos/city-response.dto.js';
 import { CountryResponseDto } from '../../application/dtos/country-response.dto.js';
 import { DepartmentResponseDto } from '../../application/dtos/department-response.dto.js';
-import { ListCitiesUseCase } from '../../application/usecases/list-cities.usecase.js';
-import { ListCountriesUseCase } from '../../application/usecases/list-countries.usecase.js';
-import { ListDepartmentsUseCase } from '../../application/usecases/list-departments.usecase.js';
+import { ListCitiesUseCase } from '../../application/services/list-cities.usecase.js';
+import { ListCountriesUseCase } from '../../application/services/list-countries.usecase.js';
+import { ListDepartmentsUseCase } from '../../application/services/list-departments.usecase.js';
 
 @ApiTags('locations')
 @Controller()

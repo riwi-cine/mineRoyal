@@ -1,5 +1,5 @@
 import { ListCountriesUseCase } from './list-countries.usecase.js';
-import { CountryRepository } from '../../infrastructure/dao/country.repository.js';
+import { CountryRepository } from '../../infrastructure/dao/country.dao.js';
 import { Country } from '../../domain/entities/country.entity.js';
 
 describe('ListCountriesUseCase', () => {

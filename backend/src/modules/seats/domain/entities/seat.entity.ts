@@ -7,6 +7,7 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
+import { z } from 'zod';
 import { Room } from './room.entity.js';
 
 @Entity('seats')
@@ -36,3 +37,29 @@ export class Seats {
   @UpdateDateColumn({ name: 'updated_at' })
   updatedAt!: Date;
 }
+
+/**
+ * Esquema base que representa un registro completo de Asiento en la base de datos
+ */
+export const seatSchema = z.object({
+  id: z.string().uuid(),
+  roomId: z.string().uuid(),
+  row: z.string().min(1).max(5),
+  number: z.string().min(1).max(5),
+  seatType: z.string().min(1).max(30),
+  createdAt: z.date(),
+  updatedAt: z.date(),
+});
+
+/**
+ * Esquema para validar los datos necesarios al crear un nuevo Asiento
+ */
+export const createSeatSchema = seatSchema.omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+// Tipos inferidos a partir de los esquemas de Zod
+export type SeatInput = z.infer<typeof seatSchema>;
+export type CreateSeatInput = z.infer<typeof createSeatSchema>;

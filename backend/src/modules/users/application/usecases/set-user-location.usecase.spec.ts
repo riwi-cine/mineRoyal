@@ -1,9 +1,9 @@
 import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { SetUserLocationUseCase } from './set-user-location.usecase.js';
-import { CinemaRepository } from '../../../locations/infrastructure/dao/cinema.repository.js';
-import { CityRepository } from '../../../locations/infrastructure/dao/city.repository.js';
-import { CountryRepository } from '../../../locations/infrastructure/dao/country.repository.js';
-import { DepartmentRepository } from '../../../locations/infrastructure/dao/department.repository.js';
+import { CinemaRepository } from '../../../locations/infrastructure/dao/cinema.dao.js';
+import { CityRepository } from '../../../locations/infrastructure/dao/city.dao.js';
+import { CountryRepository } from '../../../locations/infrastructure/dao/country.dao.js';
+import { DepartmentRepository } from '../../../locations/infrastructure/dao/department.dao.js';
 import { UserLocationRepository } from '../../infrastructure/dao/user-location.repository.js';
 import { Country } from '../../../locations/domain/entities/country.entity.js';
 import { Department } from '../../../locations/domain/entities/department.entity.js';

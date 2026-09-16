@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { CountryRepository } from '../../infrastructure/dao/country.repository.js';
+import { CountryRepository } from '../../infrastructure/dao/country.dao.js';
 import { CountryResponseDto } from '../dtos/country-response.dto.js';
 
 @Injectable()

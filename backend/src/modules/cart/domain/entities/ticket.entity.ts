@@ -1,5 +1,6 @@
 import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
-import { Function } from '../../../functions/domain/entities/function.entity.js';
+import { z } from 'zod';
+import { CinemaFunction } from '../../../functions/domain/entities/function.entity.js';
 import { Seats } from '../../../seats/domain/entities/seat.entity.js';
 
 @Entity('tickets')
@@ -13,9 +14,9 @@ export class Ticket {
   @Column({ name: 'function_id', type: 'uuid' })
   functionId!: string;
 
-  @ManyToOne(() => Function, { onDelete: 'RESTRICT' })
+  @ManyToOne(() => CinemaFunction, { onDelete: 'RESTRICT' })
   @JoinColumn({ name: 'function_id' })
-  function?: Function;
+  function?: CinemaFunction;
 
   @Column({ name: 'seat_id', type: 'uuid' })
   seatId!: string;
@@ -42,3 +43,30 @@ export class Ticket {
   @Column({ name: 'scanned_at', type: 'timestamptz', nullable: true })
   scannedAt!: Date | null;
 }
+
+/**
+ * Esquema base que representa un registro completo de Ticket en la base de datos
+ */
+export const ticketSchema = z.object({
+  id: z.string().uuid(),
+  orderId: z.string().uuid(),
+  functionId: z.string().uuid(),
+  seatId: z.string().uuid(),
+  holderUserId: z.string().uuid(),
+  qrCode: z.string().min(1).max(255),
+  price: z.coerce.number().nonnegative(),
+  status: z.string().min(1).max(30),
+  scannedByUserId: z.string().uuid().nullable(),
+  scannedAt: z.date().nullable(),
+});
+
+/**
+ * Esquema para validar los datos necesarios al crear un nuevo Ticket
+ */
+export const createTicketSchema = ticketSchema.omit({
+  id: true,
+});
+
+// Tipos inferidos a partir de los esquemas de Zod
+export type TicketInput = z.infer<typeof ticketSchema>;
+export type CreateTicketInput = z.infer<typeof createTicketSchema>;
