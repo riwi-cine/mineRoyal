@@ -5,6 +5,7 @@ import { AppController } from './app.controller.js';
 import { AppService } from './app.service.js';
 import { typeOrmConfig } from './config/database.config.js';
 import { LocationsModule } from './modules/locations/locations.module.js';
+import { MoviesModule } from './modules/movies/movies.module.js';
 import { UsersModule } from './modules/users/users.module.js';
 
 @Module({
@@ -16,6 +17,7 @@ import { UsersModule } from './modules/users/users.module.js';
       useFactory: typeOrmConfig,
     }),
     LocationsModule,
+    MoviesModule,
     UsersModule,
   ],
   controllers: [AppController],

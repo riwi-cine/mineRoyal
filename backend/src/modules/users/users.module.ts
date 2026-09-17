@@ -10,5 +10,6 @@ import { UsersController } from './ui/controllers/users.controller.js';
   imports: [TypeOrmModule.forFeature([UserLocation]), LocationsModule],
   controllers: [UsersController],
   providers: [UserLocationRepository, SetUserLocationUseCase],
+  exports: [UserLocationRepository],
 })
 export class UsersModule {}
