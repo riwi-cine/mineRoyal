@@ -36,7 +36,10 @@ async function bootstrap() {
    * http://localhost:3000/api
    */
   SwaggerModule.setup('docs', app, documentFactory);
-  await app.listen(process.env.PORT ?? 3000);
+  const port = process.env.PORT ?? 3000
+  await app.listen(port);
+  console.log(`Server is running on: http://localhost:${port}`)
+  console.log(`Swagger documentation: http://localhost:${port}/docs`)
 }
 bootstrap().catch((error: unknown) => {
   console.error('Error al iniciar la aplicación:', error);
