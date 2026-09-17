@@ -1,0 +1,82 @@
+services:
+  nginx:
+    image: nginx:alpine
+    ports:
+      - '80:80'
+    volumes:
+      - ./src/infrastructure/web/nginx/nginx.conf:/etc/nginx/nginx.conf:ro,z
+    depends_on:
+      - backend
+    networks:
+      - multicine-net
+    restart: unless-stopped
+
+  backend:
+    build:
+      context: .
+      target: development
+    env_file: .env
+    environment:
+      - NODE_ENV=development
+      - NODE_OPTIONS=--max-old-space-size=1536
+    volumes:
+      - .:/app:z
+      - /app/node_modules
+      - /app/dist
+    ports:
+      - '3000:3000' # Expuesto para desarrollo
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - multicine-net
+    restart: unless-stopped
+    healthcheck:
+      # Usamos wget nativo de Alpine para evitar fallos con curl
+      test: ['CMD', 'wget', '-qO-', 'http://localhost:3000/api/v2/health']
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  postgres:
+    image: postgres:16-alpine
+    env_file: .env
+    environment:
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+      - POSTGRES_DB=${DB_NAME}
+    ports:
+      - '5432:5432' # Expuesto temporalmente para inspección local con clientes SQL
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    networks:
+      - multicine-net
+    restart: unless-stopped
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U ${DB_USER}']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - '6379:6379' # Expuesto para depuración local de caché
+    networks:
+      - multicine-net
+    restart: unless-stopped
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  pgdata:
+
+networks:
+  multicine-net:
+    driver: bridge
