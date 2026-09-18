@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { CountryRepository } from '../../infrastructure/dao/country.repository.js';
-import { DepartmentRepository } from '../../infrastructure/dao/department.repository.js';
+import { CountryRepository } from '../../infrastructure/dao/country.dao.js';
+import { DepartmentRepository } from '../../infrastructure/dao/department.dao.js';
 import { DepartmentResponseDto } from '../dtos/department-response.dto.js';
 
 @Injectable()

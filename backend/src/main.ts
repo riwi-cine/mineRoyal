@@ -1,25 +1,25 @@
-import { ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { patchNestJsSwagger, ZodValidationPipe } from 'nestjs-zod';
 import { AppModule } from './app.module.js';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
-  app.useGlobalPipes(
-    new ValidationPipe({
-      whitelist: true,
-      forbidNonWhitelisted: true,
-      transform: true,
-    }),
-  );
+  app.useGlobalPipes(new ZodValidationPipe());
+
+  /**
+   * Permite que Swagger genere los schemas de OpenAPI
+   * a partir de los DTOs basados en zod.
+   */
+  patchNestJsSwagger();
 
   /**
    * Configuración principal de la documentación OpenAPI.
    */
   const swaggerConfig = new DocumentBuilder()
-    .setTitle('mimeRoyal v2')
-    .setDescription('swagger for mimeRoyal cinema API')
+    .setTitle('mineRoyal v2')
+    .setDescription('swagger for MineRoyal cinema API')
     .setVersion('2.0.0')
     .addBearerAuth()
     .build();
@@ -36,10 +36,10 @@ async function bootstrap() {
    * http://localhost:3000/api
    */
   SwaggerModule.setup('docs', app, documentFactory);
-  const port = process.env.PORT ?? 3000
+  const port = process.env.PORT ?? 3000;
   await app.listen(port);
-  console.log(`Server is running on: http://localhost:${port}`)
-  console.log(`Swagger documentation: http://localhost:${port}/docs`)
+  console.log(`Server is running on: http://localhost:${port}`);
+  console.log(`Swagger documentation: http://localhost:${port}/docs`);
 }
 bootstrap().catch((error: unknown) => {
   console.error('Error al iniciar la aplicación:', error);

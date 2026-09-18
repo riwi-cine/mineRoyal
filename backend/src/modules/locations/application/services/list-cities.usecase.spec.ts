@@ -1,7 +1,7 @@
 import { NotFoundException } from '@nestjs/common';
 import { ListCitiesUseCase } from './list-cities.usecase.js';
-import { CityRepository } from '../../infrastructure/dao/city.repository.js';
-import { DepartmentRepository } from '../../infrastructure/dao/department.repository.js';
+import { CityRepository } from '../../infrastructure/dao/city.dao.js';
+import { DepartmentRepository } from '../../infrastructure/dao/department.dao.js';
 import { City } from '../../domain/entities/city.entity.js';
 import { Department } from '../../domain/entities/department.entity.js';
 

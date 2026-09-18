@@ -7,6 +7,8 @@ import { typeOrmConfig } from './config/database.config.js';
 import { LocationsModule } from './modules/locations/locations.module.js';
 import { MoviesModule } from './modules/movies/movies.module.js';
 import { UsersModule } from './modules/users/users.module.js';
+import { SeatModule } from './modules/seats/ui/seat.module.js';
+import { FunctionsModule } from './modules/functions/functions.module.js';
 
 @Module({
   imports: [
@@ -19,6 +21,8 @@ import { UsersModule } from './modules/users/users.module.js';
     LocationsModule,
     MoviesModule,
     UsersModule,
+    SeatModule,
+    FunctionsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

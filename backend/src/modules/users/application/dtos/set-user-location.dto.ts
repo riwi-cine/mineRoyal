@@ -1,24 +1,11 @@
-import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, IsUUID } from 'class-validator';
+import { createZodDto } from 'nestjs-zod';
+import { z } from 'zod';
 
-export class SetUserLocationDto {
-  @ApiProperty({ description: 'Identificador del usuario.', format: 'uuid' })
-  @IsUUID()
-  @IsNotEmpty()
-  userId!: string;
+export const SetUserLocationSchema = z.object({
+  userId: z.string().uuid({ message: 'userId debe ser un UUID válido.' }),
+  countryId: z.string().uuid({ message: 'countryId debe ser un UUID válido.' }),
+  departmentId: z.string().uuid({ message: 'departmentId debe ser un UUID válido.' }),
+  cityId: z.string().uuid({ message: 'cityId debe ser un UUID válido.' }),
+});
 
-  @ApiProperty({ description: 'Identificador del país seleccionado.', format: 'uuid' })
-  @IsUUID()
-  @IsNotEmpty()
-  countryId!: string;
-
-  @ApiProperty({ description: 'Identificador del departamento seleccionado.', format: 'uuid' })
-  @IsUUID()
-  @IsNotEmpty()
-  departmentId!: string;
-
-  @ApiProperty({ description: 'Identificador de la ciudad seleccionada.', format: 'uuid' })
-  @IsUUID()
-  @IsNotEmpty()
-  cityId!: string;
-}
+export class SetUserLocationDto extends createZodDto(SetUserLocationSchema) {}

@@ -7,6 +7,7 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
+import { z } from 'zod';
 import { City } from './city.entity.js';
 
 @Entity('cinemas')
@@ -33,3 +34,28 @@ export class Cinema {
   @UpdateDateColumn({ name: 'updated_at' })
   updatedAt!: Date;
 }
+
+/**
+ * Esquema base que representa un registro completo de Cine en la base de datos
+ */
+export const cinemaSchema = z.object({
+  id: z.string().uuid(),
+  name: z.string().min(1).max(150),
+  cityId: z.string().uuid(),
+  isActive: z.boolean().default(true),
+  createdAt: z.date(),
+  updatedAt: z.date(),
+});
+
+/**
+ * Esquema para validar los datos necesarios al crear un nuevo Cine
+ */
+export const createCinemaSchema = cinemaSchema.omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+// Tipos inferidos a partir de los esquemas de Zod
+export type CinemaInput = z.infer<typeof cinemaSchema>;
+export type CreateCinemaInput = z.infer<typeof createCinemaSchema>;

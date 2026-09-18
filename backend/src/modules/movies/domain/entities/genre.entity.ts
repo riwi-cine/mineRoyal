@@ -1,4 +1,5 @@
 import { Column, CreateDateColumn, Entity, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
+import { z } from 'zod';
 import { MovieGenre } from './movie-genre.entity.js';
 
 @Entity('genres')
@@ -18,3 +19,15 @@ export class Genre {
   @UpdateDateColumn({ name: 'updated_at' })
   updatedAt!: Date;
 }
+
+export const genreSchema = z.object({
+  id: z.string().uuid(),
+  name: z.string().min(1).max(60),
+});
+
+export const createGenreSchema = genreSchema.omit({
+  id: true,
+});
+
+export type GenreInput = z.infer<typeof genreSchema>;
+export type CreateGenreInput = z.infer<typeof createGenreSchema>;

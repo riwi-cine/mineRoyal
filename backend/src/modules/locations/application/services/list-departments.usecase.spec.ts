@@ -1,7 +1,7 @@
 import { NotFoundException } from '@nestjs/common';
 import { ListDepartmentsUseCase } from './list-departments.usecase.js';
-import { CountryRepository } from '../../infrastructure/dao/country.repository.js';
-import { DepartmentRepository } from '../../infrastructure/dao/department.repository.js';
+import { CountryRepository } from '../../infrastructure/dao/country.dao.js';
+import { DepartmentRepository } from '../../infrastructure/dao/department.dao.js';
 import { Country } from '../../domain/entities/country.entity.js';
 import { Department } from '../../domain/entities/department.entity.js';
 

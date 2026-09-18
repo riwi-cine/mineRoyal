@@ -8,6 +8,7 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
+import { z } from 'zod';
 import { Cinema } from './cinema.entity.js';
 import { Department } from './department.entity.js';
 
@@ -38,3 +39,27 @@ export class City {
   @UpdateDateColumn({ name: 'updated_at' })
   updatedAt!: Date;
 }
+/**
+ * Esquema base que representa un registro completo de Ciudad en la base de datos
+ */
+export const citySchema = z.object({
+  id: z.string().uuid(),
+  name: z.string().min(1).max(100),
+  departmentId: z.string().uuid(),
+  isActive: z.boolean().default(true),
+  createdAt: z.date(),
+  updatedAt: z.date(),
+});
+
+/**
+ * Esquema para validar los datos necesarios al crear una nueva Ciudad
+ */
+export const createCitySchema = citySchema.omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+// Tipos inferidos a partir de los esquemas de Zod
+export type CityInput = z.infer<typeof citySchema>;
+export type CreateCityInput = z.infer<typeof createCitySchema>;

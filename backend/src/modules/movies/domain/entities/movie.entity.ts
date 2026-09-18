@@ -8,6 +8,7 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
+import { z } from 'zod';
 import { Director } from './director.entity.js';
 import { MovieActor } from './movie-actor.entity.js';
 import { MovieFormat } from './movie-format.entity.js';
@@ -78,3 +79,29 @@ export class Movie {
   @UpdateDateColumn({ name: 'updated_at' })
   updatedAt!: Date;
 }
+
+export const movieSchema = z.object({
+  id: z.string().uuid(),
+  title: z.string().min(1).max(200),
+  posterUrl: z.string().url().max(500).optional(),
+  bannerUrl: z.string().url().max(500).optional(),
+  trailerUrl: z.string().url().max(500).optional(),
+  synopsis: z.string().min(1),
+  durationMinutes: z.coerce.number().int().nonnegative(),
+  classification: z.string().min(1).max(10),
+  releaseDate: z.coerce.date(),
+  rating: z.coerce.number().min(0).max(10).default(0),
+  isActive: z.boolean().default(true),
+  directorId: z.string().uuid(),
+  createdAt: z.coerce.date(),
+  updatedAt: z.coerce.date(),
+});
+
+export const createMovieSchema = movieSchema.omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type MovieInput = z.infer<typeof movieSchema>;
+export type CreateMovieInput = z.infer<typeof createMovieSchema>;

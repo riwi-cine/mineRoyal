@@ -7,6 +7,7 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
+import { z } from 'zod';
 import { City } from '../../../locations/domain/entities/city.entity.js';
 import { Country } from '../../../locations/domain/entities/country.entity.js';
 import { Department } from '../../../locations/domain/entities/department.entity.js';
@@ -47,3 +48,29 @@ export class UserLocation {
   @UpdateDateColumn({ name: 'updated_at' })
   updatedAt!: Date;
 }
+
+/**
+ * Esquema base que representa un registro completo de Ubicación de Usuario en la base de datos
+ */
+export const userLocationSchema = z.object({
+  id: z.string().uuid(),
+  userId: z.string().uuid(),
+  countryId: z.string().uuid(),
+  departmentId: z.string().uuid(),
+  cityId: z.string().uuid(),
+  createdAt: z.date(),
+  updatedAt: z.date(),
+});
+
+/**
+ * Esquema para validar los datos necesarios al crear una nueva Ubicación de Usuario
+ */
+export const createUserLocationSchema = userLocationSchema.omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+// Tipos inferidos a partir de los esquemas de Zod
+export type UserLocationInput = z.infer<typeof userLocationSchema>;
+export type CreateUserLocationInput = z.infer<typeof createUserLocationSchema>;
