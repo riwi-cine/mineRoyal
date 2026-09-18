@@ -9,9 +9,6 @@ import { LocationsModule } from './modules/locations/locations.module.js';
 import { MoviesModule } from './modules/movies/movies.module.js';
 import { SeatModule } from './modules/seats/ui/seat.module.js';
 import { UsersModule } from './modules/users/users.module.js';
-import { HealthModule } from './infrastructure/health/health.module';
-import { HealthModule } from './infrastructure/web/health/health.module';
-import { HealthService } from './infrastructure/web/health/health.service';
 import { HealthModule } from './infrastructure/web/health/health.module';
 
 @Module({
@@ -30,6 +27,6 @@ import { HealthModule } from './infrastructure/web/health/health.module';
     HealthModule,
   ],
   controllers: [AppController],
-  providers: [AppService, HealthService],
+  providers: [AppService],
 })
 export class AppModule {}
