@@ -2,9 +2,9 @@ import { Controller, Get, Param, ParseUUIDPipe, Query } from '@nestjs/common';
 import { ApiOperation, ApiParam, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { MovieDetailResponseDto } from '../../application/dtos/movie-detail-response.dto.js';
 import { MovieSummaryResponseDto } from '../../application/dtos/movie-summary-response.dto.js';
-import { GetMovieDetailUseCase } from '../../application/usecases/get-movie-detail.usecase.js';
-import { ListMovieFunctionsUseCase } from '../../application/usecases/list-movie-functions.usecase.js';
-import { ListMovieRecommendationsUseCase } from '../../application/usecases/list-movie-recommendations.usecase.js';
+import { GetMovieDetailUseCase } from '../../application/services/get-movie-detail.usecase.js';
+import { ListMovieFunctionsUseCase } from '../../application/services/list-movie-functions.usecase.js';
+import { ListMovieRecommendationsUseCase } from '../../application/services/list-movie-recommendations.usecase.js';
 
 @ApiTags('movies')
 @Controller('movies')

@@ -2,11 +2,12 @@ services:
   nginx:
     image: nginx:alpine
     ports:
-      - '80:80'
+      - '8080:80'
     volumes:
       - ./src/infrastructure/web/nginx/nginx.conf:/etc/nginx/nginx.conf:ro,z
     depends_on:
-      - backend
+      backend:
+        condition: service_healthy
     networks:
       - multicine-net
     restart: unless-stopped
@@ -21,7 +22,7 @@ services:
       - NODE_OPTIONS=--max-old-space-size=1536
     volumes:
       - .:/app:z
-      - /app/node_modules
+      - backend_node_modules:/app/node_modules
       - /app/dist
     ports:
       - '3000:3000' # Expuesto para desarrollo
@@ -35,7 +36,7 @@ services:
     restart: unless-stopped
     healthcheck:
       # Usamos wget nativo de Alpine para evitar fallos con curl
-      test: ['CMD', 'wget', '-qO-', 'http://localhost:3000/api/v2/health']
+      test: ['CMD', 'wget', '-qO-', 'http://localhost:3000/']
       interval: 30s
       timeout: 10s
       retries: 3
@@ -76,6 +77,7 @@ services:
 
 volumes:
   pgdata:
+  backend_node_modules:
 
 networks:
   multicine-net:

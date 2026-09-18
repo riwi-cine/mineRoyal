@@ -3,9 +3,9 @@ import { Test, TestingModule } from '@nestjs/testing';
 import request from 'supertest';
 import { MovieRepository } from '../../src/modules/movies/infrastructure/dao/movie.repository.js';
 import { MovieFunctionRepository } from '../../src/modules/movies/infrastructure/dao/movie-function.repository.js';
-import { GetMovieDetailUseCase } from '../../src/modules/movies/application/usecases/get-movie-detail.usecase.js';
-import { ListMovieFunctionsUseCase } from '../../src/modules/movies/application/usecases/list-movie-functions.usecase.js';
-import { ListMovieRecommendationsUseCase } from '../../src/modules/movies/application/usecases/list-movie-recommendations.usecase.js';
+import { GetMovieDetailUseCase } from '../../src/modules/movies/application/services/get-movie-detail.usecase.js';
+import { ListMovieFunctionsUseCase } from '../../src/modules/movies/application/services/list-movie-functions.usecase.js';
+import { ListMovieRecommendationsUseCase } from '../../src/modules/movies/application/services/list-movie-recommendations.usecase.js';
 import { MoviesController } from '../../src/modules/movies/ui/controllers/movies.controller.js';
 import { UserLocationRepository } from '../../src/modules/users/infrastructure/dao/user-location.repository.js';
 

@@ -1,16 +1,17 @@
-import { INestApplication, ValidationPipe } from '@nestjs/common';
+import { INestApplication } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
+import { ZodValidationPipe } from 'nestjs-zod';
 import request from 'supertest';
-import { CinemaRepository } from '../../src/modules/locations/infrastructure/dao/cinema.repository.js';
-import { CityRepository } from '../../src/modules/locations/infrastructure/dao/city.repository.js';
-import { CountryRepository } from '../../src/modules/locations/infrastructure/dao/country.repository.js';
-import { DepartmentRepository } from '../../src/modules/locations/infrastructure/dao/department.repository.js';
-import { ListCitiesUseCase } from '../../src/modules/locations/application/usecases/list-cities.usecase.js';
-import { ListCountriesUseCase } from '../../src/modules/locations/application/usecases/list-countries.usecase.js';
-import { ListDepartmentsUseCase } from '../../src/modules/locations/application/usecases/list-departments.usecase.js';
+import { CinemaRepository } from '../../src/modules/locations/infrastructure/dao/cinema.dao.js';
+import { CityRepository } from '../../src/modules/locations/infrastructure/dao/city.dao.js';
+import { CountryRepository } from '../../src/modules/locations/infrastructure/dao/country.dao.js';
+import { DepartmentRepository } from '../../src/modules/locations/infrastructure/dao/department.dao.js';
+import { ListCitiesUseCase } from '../../src/modules/locations/application/services/list-cities.usecase.js';
+import { ListCountriesUseCase } from '../../src/modules/locations/application/services/list-countries.usecase.js';
+import { ListDepartmentsUseCase } from '../../src/modules/locations/application/services/list-departments.usecase.js';
 import { LocationsController } from '../../src/modules/locations/ui/controllers/locations.controller.js';
 import { UserLocationRepository } from '../../src/modules/users/infrastructure/dao/user-location.repository.js';
-import { SetUserLocationUseCase } from '../../src/modules/users/application/usecases/set-user-location.usecase.js';
+import { SetUserLocationUseCase } from '../../src/modules/users/application/services/set-user-location.usecase.js';
 import { UsersController } from '../../src/modules/users/ui/controllers/users.controller.js';
 
 const countryId = '11111111-1111-4111-a111-111111111111';
@@ -61,7 +62,7 @@ describe('Location selection (e2e happy path)', () => {
     }).compile();
 
     app = moduleRef.createNestApplication();
-    app.useGlobalPipes(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true, transform: true }));
+    app.useGlobalPipes(new ZodValidationPipe());
     await app.init();
   });
 

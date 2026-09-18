@@ -14,9 +14,9 @@ import { MovieLanguage } from './domain/entities/movie-language.entity.js';
 import { Room } from './domain/entities/room.entity.js';
 import { MovieFunctionRepository } from './infrastructure/dao/movie-function.repository.js';
 import { MovieRepository } from './infrastructure/dao/movie.repository.js';
-import { GetMovieDetailUseCase } from './application/usecases/get-movie-detail.usecase.js';
-import { ListMovieFunctionsUseCase } from './application/usecases/list-movie-functions.usecase.js';
-import { ListMovieRecommendationsUseCase } from './application/usecases/list-movie-recommendations.usecase.js';
+import { GetMovieDetailUseCase } from './application/services/get-movie-detail.usecase.js';
+import { ListMovieFunctionsUseCase } from './application/services/list-movie-functions.usecase.js';
+import { ListMovieRecommendationsUseCase } from './application/services/list-movie-recommendations.usecase.js';
 import { MoviesController } from './ui/controllers/movies.controller.js';
 import { UsersModule } from '../users/users.module.js';
 

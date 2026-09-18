@@ -2,7 +2,7 @@ import { Body, Controller, Post } from '@nestjs/common';
 import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { SetUserLocationDto } from '../../application/dtos/set-user-location.dto.js';
 import { UserLocationResponseDto } from '../../application/dtos/user-location-response.dto.js';
-import { SetUserLocationUseCase } from '../../application/usecases/set-user-location.usecase.js';
+import { SetUserLocationUseCase } from '../../application/services/set-user-location.usecase.js';
 
 @ApiTags('users')
 @Controller('users')
