@@ -26,7 +26,7 @@ describe('GetMovieDetailUseCase', () => {
 
   const buildUseCase = (found: Movie | null) => {
     const movieRepository = {
-      findDetailById: jest.fn().mockResolvedValue(found),
+      findDetailById: vi.fn().mockResolvedValue(found),
     } as unknown as MovieRepository;
     return { useCase: new GetMovieDetailUseCase(movieRepository), movieRepository };
   };

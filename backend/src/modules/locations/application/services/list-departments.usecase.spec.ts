@@ -29,13 +29,13 @@ describe('ListDepartmentsUseCase', () => {
     departments: Department[] = [department],
   ): { useCase: ListDepartmentsUseCase; departmentRepository: DepartmentRepository } => {
     const countryRepository = {
-      findById: jest.fn().mockResolvedValue(countryOverride),
-      findAllActive: jest.fn(),
+      findById: vi.fn().mockResolvedValue(countryOverride),
+      findAllActive: vi.fn(),
     } as unknown as CountryRepository;
 
     const departmentRepository = {
-      findActiveByCountry: jest.fn().mockResolvedValue(departments),
-      findById: jest.fn(),
+      findActiveByCountry: vi.fn().mockResolvedValue(departments),
+      findById: vi.fn(),
     } as unknown as DepartmentRepository;
 
     return { useCase: new ListDepartmentsUseCase(countryRepository, departmentRepository), departmentRepository };

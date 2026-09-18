@@ -3,7 +3,7 @@ import { MovieFunctionRepository } from './movie-function.repository.js';
 
 describe('MovieFunctionRepository', () => {
   it('queries only active future functions for the given movie and city', async () => {
-    const find = jest.fn().mockResolvedValue([]);
+    const find = vi.fn().mockResolvedValue([]);
     const repository = new MovieFunctionRepository({ find } as never);
 
     await repository.findFutureByMovieAndCity('movie-1', 'city-1');

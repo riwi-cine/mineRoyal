@@ -33,15 +33,15 @@ describe('ListMovieFunctionsUseCase', () => {
     } = {},
   ) => {
     const movieRepository = {
-      findActiveById: jest.fn().mockResolvedValue('movie' in options ? options.movie : movie),
+      findActiveById: vi.fn().mockResolvedValue('movie' in options ? options.movie : movie),
     } as unknown as MovieRepository;
 
     const movieFunctionRepository = {
-      findFutureByMovieAndCity: jest.fn().mockResolvedValue(options.functions ?? [buildFunction()]),
+      findFutureByMovieAndCity: vi.fn().mockResolvedValue(options.functions ?? [buildFunction()]),
     } as unknown as MovieFunctionRepository;
 
     const userLocationRepository = {
-      findByUserId: jest.fn().mockResolvedValue('userLocation' in options ? options.userLocation : userLocation),
+      findByUserId: vi.fn().mockResolvedValue('userLocation' in options ? options.userLocation : userLocation),
     } as unknown as UserLocationRepository;
 
     return {
