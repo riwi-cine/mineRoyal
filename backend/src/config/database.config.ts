@@ -1,5 +1,6 @@
 import type { ConfigService } from '@nestjs/config';
 import type { TypeOrmModuleOptions } from '@nestjs/typeorm';
+import { join } from 'path';
 import { SnakeCaseNamingStrategy } from '../infrastructure/database/naming/snake-case.naming-strategy.js';
 
 export const typeOrmConfig = (config: ConfigService): TypeOrmModuleOptions => {
@@ -17,6 +18,8 @@ export const typeOrmConfig = (config: ConfigService): TypeOrmModuleOptions => {
           database: config.get<string>('DB_NAME', 'mineroyal'),
         }),
     autoLoadEntities: true,
+    migrations: [join(__dirname, '../infrastructure/database/migrations/*{.ts,.js}')],
+    migrationsRun: true,
     namingStrategy: new SnakeCaseNamingStrategy(),
     synchronize: false,
   };
