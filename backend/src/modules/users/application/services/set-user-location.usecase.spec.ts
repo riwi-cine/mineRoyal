@@ -47,27 +47,27 @@ describe('SetUserLocationUseCase', () => {
     } = {},
   ) => {
     const countryRepository = {
-      findById: jest.fn().mockResolvedValue('country' in overrides ? overrides.country : country),
-      findAllActive: jest.fn(),
+      findById: vi.fn().mockResolvedValue('country' in overrides ? overrides.country : country),
+      findAllActive: vi.fn(),
     } as unknown as CountryRepository;
 
     const departmentRepository = {
-      findById: jest.fn().mockResolvedValue('department' in overrides ? overrides.department : department),
-      findActiveByCountry: jest.fn(),
+      findById: vi.fn().mockResolvedValue('department' in overrides ? overrides.department : department),
+      findActiveByCountry: vi.fn(),
     } as unknown as DepartmentRepository;
 
     const cityRepository = {
-      findById: jest.fn().mockResolvedValue('city' in overrides ? overrides.city : city),
-      findActiveByDepartment: jest.fn(),
+      findById: vi.fn().mockResolvedValue('city' in overrides ? overrides.city : city),
+      findActiveByDepartment: vi.fn(),
     } as unknown as CityRepository;
 
     const cinemaRepository = {
-      countActiveByCity: jest.fn().mockResolvedValue(overrides.activeCinemas ?? 1),
+      countActiveByCity: vi.fn().mockResolvedValue(overrides.activeCinemas ?? 1),
     } as unknown as CinemaRepository;
 
     const userLocationRepository = {
-      upsert: jest.fn().mockResolvedValue(userLocation),
-      findByUserId: jest.fn(),
+      upsert: vi.fn().mockResolvedValue(userLocation),
+      findByUserId: vi.fn(),
     } as unknown as UserLocationRepository;
 
     return {

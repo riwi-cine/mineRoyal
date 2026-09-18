@@ -19,8 +19,8 @@ describe('ListMovieRecommendationsUseCase', () => {
     const unrelated = buildMovie('movie-4', 'Comedy Night', ['comedy']);
 
     const movieRepository = {
-      findActiveWithGenresById: jest.fn().mockResolvedValue(target),
-      findActiveWithGenres: jest.fn().mockResolvedValue([target, other1, other2, unrelated]),
+      findActiveWithGenresById: vi.fn().mockResolvedValue(target),
+      findActiveWithGenres: vi.fn().mockResolvedValue([target, other1, other2, unrelated]),
     } as unknown as MovieRepository;
 
     const useCase = new ListMovieRecommendationsUseCase(movieRepository);
@@ -31,8 +31,8 @@ describe('ListMovieRecommendationsUseCase', () => {
 
   it('returns an empty array when the movie has no genres', async () => {
     const movieRepository = {
-      findActiveWithGenresById: jest.fn().mockResolvedValue(buildMovie('movie-1', 'No Genre', [])),
-      findActiveWithGenres: jest.fn(),
+      findActiveWithGenresById: vi.fn().mockResolvedValue(buildMovie('movie-1', 'No Genre', [])),
+      findActiveWithGenres: vi.fn(),
     } as unknown as MovieRepository;
 
     const useCase = new ListMovieRecommendationsUseCase(movieRepository);
@@ -44,8 +44,8 @@ describe('ListMovieRecommendationsUseCase', () => {
   it('returns an empty array when no other movie shares a genre', async () => {
     const unrelated = buildMovie('movie-4', 'Comedy Night', ['comedy']);
     const movieRepository = {
-      findActiveWithGenresById: jest.fn().mockResolvedValue(target),
-      findActiveWithGenres: jest.fn().mockResolvedValue([target, unrelated]),
+      findActiveWithGenresById: vi.fn().mockResolvedValue(target),
+      findActiveWithGenres: vi.fn().mockResolvedValue([target, unrelated]),
     } as unknown as MovieRepository;
 
     const useCase = new ListMovieRecommendationsUseCase(movieRepository);
@@ -56,8 +56,8 @@ describe('ListMovieRecommendationsUseCase', () => {
 
   it('throws NotFoundException when the movie does not exist', async () => {
     const movieRepository = {
-      findActiveWithGenresById: jest.fn().mockResolvedValue(null),
-      findActiveWithGenres: jest.fn(),
+      findActiveWithGenresById: vi.fn().mockResolvedValue(null),
+      findActiveWithGenres: vi.fn(),
     } as unknown as MovieRepository;
 
     const useCase = new ListMovieRecommendationsUseCase(movieRepository);

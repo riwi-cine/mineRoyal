@@ -4,8 +4,9 @@
   "description": "Backend NestJS + TypeORM arquitectura screaming/clean",
   "license": "UNLICENSED",
   "private": true,
+  "type": "module",
   "engines": {
-    "node": ">=20.11.0"
+    "node": ">=20.19.0"
   },
   "scripts": {
     "start": "nest start",
@@ -15,45 +16,16 @@
     "build": "nest build",
     "format": "prettier --write \"src/**/*.ts\"",
     "lint": "eslint \"src/**/*.ts\" --fix",
-    "type-check": "tsc --noEmit -p tsconfig.json",
+    "type-check": "tsc --noEmit -p tsconfig.build.json",
     "migration:generate": "typeorm migration:generate -d ./src/infrastructure/database/datasource.ts",
     "migration:run": "typeorm migration:run -d ./src/infrastructure/database/datasource.ts",
     "migration:revert": "typeorm migration:revert -d ./src/infrastructure/database/datasource.ts",
     "seed": "ts-node ./src/infrastructure/database/seeders/index.ts",
-    "test": "jest",
-    "test:watch": "jest --watch",
-    "test:cov": "jest --coverage",
-    "test:e2e": "jest --config ./test/jest-e2e.json"
-  },
-  "jest": {
-    "moduleFileExtensions": [
-      "js",
-      "json",
-      "ts"
-    ],
-    "rootDir": "src",
-    "testRegex": ".*\\.spec\\.ts$",
-    "transform": {
-      "^.+\\.(t|j)s$": "ts-jest"
-    },
-    "moduleNameMapper": {
-      "^(\\.{1,2}/.*)\\.js$": "$1"
-    },
-    "collectCoverageFrom": [
-      "**/*.(t|j)s"
-    ],
-    "coveragePathIgnorePatterns": [
-      "\\.module\\.ts$",
-      "\\.entity\\.ts$",
-      "main\\.ts$",
-      "app\\.controller\\.ts$",
-      "app\\.service\\.ts$",
-      "/infrastructure/database/",
-      "/config/",
-      "/ui/controllers/"
-    ],
-    "coverageDirectory": "../coverage",
-    "testEnvironment": "node"
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:cov": "vitest run --coverage",
+    "test:e2e": "vitest run --config vitest.config.e2e.ts",
+    "test:ui": "vitest --ui"
   },
   "dependencies": {
     "@nestjs/common": "^10.4.0",
@@ -81,24 +53,27 @@
     "@nestjs/cli": "^10.4.0",
     "@nestjs/schematics": "^10.2.3",
     "@nestjs/testing": "^10.4.0",
+    "@swc/core": "^1.16.2",
     "@types/bcrypt": "^5.0.2",
     "@types/express": "^4.17.17",
-    "@types/jest": "^29.5.0",
     "@types/node": "^20.11.30",
     "@types/passport-jwt": "^2.0.1",
     "@types/supertest": "^2.0.12",
     "@typescript-eslint/eslint-plugin": "^7.0.0",
     "@typescript-eslint/parser": "^7.0.0",
+    "@vitest/coverage-v8": "^4.1.11",
+    "@vitest/ui": "4.1.11",
     "eslint": "^8.56.0",
     "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-prettier": "^5.1.1",
-    "jest": "^29.7.0",
     "pg-hstore": "^2.3.4",
     "prettier": "^3.2.5",
     "supertest": "^6.3.4",
-    "ts-jest": "^29.1.0",
     "ts-node": "^10.9.2",
     "tsconfig-paths": "^4.2.0",
-    "typescript": "5.4.5"
+    "typescript": "5.4.5",
+    "unplugin-swc": "^1.6.0",
+    "vite-tsconfig-paths": "^6.1.1",
+    "vitest": "^4.1.11"
   }
 }

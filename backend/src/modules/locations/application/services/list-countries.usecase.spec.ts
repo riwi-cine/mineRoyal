@@ -16,8 +16,8 @@ describe('ListCountriesUseCase', () => {
 
   it('returns only active countries mapped to response DTOs', async () => {
     const countryRepository = {
-      findAllActive: jest.fn().mockResolvedValue([buildCountry()]),
-      findById: jest.fn(),
+      findAllActive: vi.fn().mockResolvedValue([buildCountry()]),
+      findById: vi.fn(),
     } as unknown as CountryRepository;
 
     const useCase = new ListCountriesUseCase(countryRepository);
@@ -29,8 +29,8 @@ describe('ListCountriesUseCase', () => {
 
   it('returns an empty array when there are no active countries', async () => {
     const countryRepository = {
-      findAllActive: jest.fn().mockResolvedValue([]),
-      findById: jest.fn(),
+      findAllActive: vi.fn().mockResolvedValue([]),
+      findById: vi.fn(),
     } as unknown as CountryRepository;
 
     const useCase = new ListCountriesUseCase(countryRepository);
