@@ -6,8 +6,9 @@ import { AppModule } from './app.module.js';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
+  app.enableShutdownHooks; // GracefulShutdown
   app.useGlobalPipes(new ZodValidationPipe());
-
+  app.setGlobalPrefix('api/v2');
   /**
    * Permite que Swagger genere los schemas de OpenAPI
    * a partir de los DTOs basados en zod.
