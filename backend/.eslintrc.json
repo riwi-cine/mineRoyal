@@ -4,13 +4,21 @@
     "project": ["**/tsconfig.json"],
     "sourceType": "module"
   },
-  "plugins": ["@typescript-eslint"],
+  "plugins": ["@typescript-eslint", "@vitest"],
   "extends": ["eslint:recommended", "plugin:@typescript-eslint/recommended", "plugin:prettier/recommended"],
   "root": true,
   "env": {
-    "node": true,
-    "vitest": true
+    "node": true
   },
+  "overrides": [
+    {
+      "files": ["**/*.spec.ts", "**/*.test.ts", "test/**/*.ts"],
+      "plugins": ["@vitest"],
+      "rules": {
+        "@vitest/consistent-test-it": "warn"
+      }
+    }
+  ],
   "ignorePatterns": [".eslintrc.json", "dist", "node_modules"],
   "rules": {
     "@typescript-eslint/no-explicit-any": "off",
