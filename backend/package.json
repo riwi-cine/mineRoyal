@@ -75,5 +75,13 @@
     "unplugin-swc": "^1.6.0",
     "vite-tsconfig-paths": "^6.1.1",
     "vitest": "^4.1.11"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "@nestjs/core",
+      "@scarf/scarf",
+      "@swc/core",
+      "bcrypt"
+    ]
   }
 }
