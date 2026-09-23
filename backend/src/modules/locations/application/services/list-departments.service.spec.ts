@@ -1,11 +1,11 @@
 import { NotFoundException } from '@nestjs/common';
-import { ListDepartmentsUseCase } from './list-departments.usecase.js';
+import { ListDepartmentsService } from './list-departments.service.js';
 import { CountryRepository } from '../../infrastructure/dao/country.dao.js';
 import { DepartmentRepository } from '../../infrastructure/dao/department.dao.js';
 import { Country } from '../../domain/entities/country.entity.js';
 import { Department } from '../../domain/entities/department.entity.js';
 
-describe('ListDepartmentsUseCase', () => {
+describe('ListDepartmentsService', () => {
   const country: Country = {
     id: 'country-1',
     name: 'Colombia',
@@ -27,7 +27,7 @@ describe('ListDepartmentsUseCase', () => {
   const buildUseCase = (
     countryOverride: Country | null = country,
     departments: Department[] = [department],
-  ): { useCase: ListDepartmentsUseCase; departmentRepository: DepartmentRepository } => {
+  ): { useService: ListDepartmentsService; departmentRepository: DepartmentRepository } => {
     const countryRepository = {
       findById: vi.fn().mockResolvedValue(countryOverride),
       findAllActive: vi.fn(),
@@ -38,27 +38,27 @@ describe('ListDepartmentsUseCase', () => {
       findById: vi.fn(),
     } as unknown as DepartmentRepository;
 
-    return { useCase: new ListDepartmentsUseCase(countryRepository, departmentRepository), departmentRepository };
+    return { useService: new ListDepartmentsService(countryRepository, departmentRepository), departmentRepository };
   };
 
   it('lists active departments for an existing active country', async () => {
-    const { useCase, departmentRepository } = buildUseCase();
+    const { useService, departmentRepository } = buildUseCase();
 
-    const result = await useCase.execute('country-1');
+    const result = await useService.execute('country-1');
 
     expect(departmentRepository.findActiveByCountry).toHaveBeenCalledWith('country-1');
     expect(result).toEqual([{ id: 'department-1', name: 'Antioquia', countryId: 'country-1' }]);
   });
 
   it('throws NotFoundException when the country does not exist', async () => {
-    const { useCase } = buildUseCase(null);
+    const { useService } = buildUseCase(null);
 
-    await expect(useCase.execute('missing-country')).rejects.toThrow(NotFoundException);
+    await expect(useService.execute('missing-country')).rejects.toThrow(NotFoundException);
   });
 
   it('throws NotFoundException when the country is inactive', async () => {
-    const { useCase } = buildUseCase({ ...country, isActive: false });
+    const { useService } = buildUseCase({ ...country, isActive: false });
 
-    await expect(useCase.execute('country-1')).rejects.toThrow(NotFoundException);
+    await expect(useService.execute('country-1')).rejects.toThrow(NotFoundException);
   });
 });

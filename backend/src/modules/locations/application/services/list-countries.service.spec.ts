@@ -1,8 +1,8 @@
-import { ListCountriesUseCase } from './list-countries.usecase.js';
+import { ListCountriesService } from './list-countries.service.js';
 import { CountryRepository } from '../../infrastructure/dao/country.dao.js';
 import { Country } from '../../domain/entities/country.entity.js';
 
-describe('ListCountriesUseCase', () => {
+describe('ListCountriesService', () => {
   const buildCountry = (overrides: Partial<Country> = {}): Country =>
     ({
       id: 'country-1',
@@ -20,8 +20,8 @@ describe('ListCountriesUseCase', () => {
       findById: vi.fn(),
     } as unknown as CountryRepository;
 
-    const useCase = new ListCountriesUseCase(countryRepository);
-    const result = await useCase.execute();
+    const useService = new ListCountriesService(countryRepository);
+    const result = await useService.execute();
 
     expect(countryRepository.findAllActive).toHaveBeenCalledTimes(1);
     expect(result).toEqual([{ id: 'country-1', name: 'Colombia', isoCode: 'CO' }]);
@@ -33,8 +33,8 @@ describe('ListCountriesUseCase', () => {
       findById: vi.fn(),
     } as unknown as CountryRepository;
 
-    const useCase = new ListCountriesUseCase(countryRepository);
-    const result = await useCase.execute();
+    const useService = new ListCountriesService(countryRepository);
+    const result = await useService.execute();
 
     expect(result).toEqual([]);
   });

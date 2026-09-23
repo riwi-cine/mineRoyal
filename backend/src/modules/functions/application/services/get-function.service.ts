@@ -3,7 +3,7 @@ import { FunctionRepository } from '../../infrastructure/dao/function.dao.js';
 import { FunctionResponseDto } from '../dtos/function-response.dto.js';
 
 @Injectable()
-export class GetFunctionUseCase {
+export class GetFunctionService {
   constructor(private readonly functionRepository: FunctionRepository) {}
 
   async execute(functionId: string): Promise<FunctionResponseDto> {

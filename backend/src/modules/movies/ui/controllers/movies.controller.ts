@@ -2,17 +2,17 @@ import { Controller, Get, Param, ParseUUIDPipe, Query } from '@nestjs/common';
 import { ApiOperation, ApiParam, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { MovieDetailResponseDto } from '../../application/dtos/movie-detail-response.dto.js';
 import { MovieSummaryResponseDto } from '../../application/dtos/movie-summary-response.dto.js';
-import { GetMovieDetailUseCase } from '../../application/services/get-movie-detail.usecase.js';
-import { ListMovieFunctionsUseCase } from '../../application/services/list-movie-functions.usecase.js';
-import { ListMovieRecommendationsUseCase } from '../../application/services/list-movie-recommendations.usecase.js';
+import { GetMovieDetailService } from '../../application/services/get-movie-detail.service.js';
+import { ListMovieFunctionsService } from '../../application/services/list-movie-functions.service.js';
+import { ListMovieRecommendationsService } from '../../application/services/list-movie-recommendations.service.js';
 
 @ApiTags('movies')
 @Controller('movies')
 export class MoviesController {
   constructor(
-    private readonly getMovieDetailUseCase: GetMovieDetailUseCase,
-    private readonly listMovieFunctionsUseCase: ListMovieFunctionsUseCase,
-    private readonly listMovieRecommendationsUseCase: ListMovieRecommendationsUseCase,
+    private readonly getMovieDetailUseCase: GetMovieDetailService,
+    private readonly listMovieFunctionsUseCase: ListMovieFunctionsService,
+    private readonly listMovieRecommendationsUseCase: ListMovieRecommendationsService,
   ) {}
 
   @Get(':id')
@@ -33,7 +33,7 @@ export class MoviesController {
   getFunctions(
     @Param('id', ParseUUIDPipe) id: string,
     @Query('userId', ParseUUIDPipe) userId: string,
-  ): ReturnType<ListMovieFunctionsUseCase['execute']> {
+  ): ReturnType<ListMovieFunctionsService['execute']> {
     return this.listMovieFunctionsUseCase.execute(id, userId);
   }
 

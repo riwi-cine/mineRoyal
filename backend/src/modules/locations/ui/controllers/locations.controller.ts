@@ -3,17 +3,17 @@ import { ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { CityResponseDto } from '../../application/dtos/city-response.dto.js';
 import { CountryResponseDto } from '../../application/dtos/country-response.dto.js';
 import { DepartmentResponseDto } from '../../application/dtos/department-response.dto.js';
-import { ListCitiesUseCase } from '../../application/services/list-cities.usecase.js';
-import { ListCountriesUseCase } from '../../application/services/list-countries.usecase.js';
-import { ListDepartmentsUseCase } from '../../application/services/list-departments.usecase.js';
+import { ListCitiesService } from '../../application/services/list-cities.service.js';
+import { ListCountriesService } from '../../application/services/list-countries.service.js';
+import { ListDepartmentsService } from '../../application/services/list-departments.service.js';
 
 @ApiTags('locations')
 @Controller()
 export class LocationsController {
   constructor(
-    private readonly listCountriesUseCase: ListCountriesUseCase,
-    private readonly listDepartmentsUseCase: ListDepartmentsUseCase,
-    private readonly listCitiesUseCase: ListCitiesUseCase,
+    private readonly listCountriesUseCase: ListCountriesService,
+    private readonly listDepartmentsUseCase: ListDepartmentsService,
+    private readonly listCitiesUseCase: ListCitiesService,
   ) {}
 
   @Get('countries')

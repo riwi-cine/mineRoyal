@@ -1,8 +1,8 @@
 import { Controller, Get, Param, ParseUUIDPipe, Query } from '@nestjs/common';
 import { ApiOperation, ApiParam, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { GetFunctionPricesUseCase } from '../../application/services/get-function-prices.usecase.js';
-import { GetFunctionUseCase } from '../../application/services/get-function.usecase.js';
-import { ListMovieFunctionsUseCase } from '../../application/services/list-movie-functions.usecase.js';
+import { GetFunctionPricesService } from '../../application/services/get-function-prices.service.js';
+import { GetFunctionService } from '../../application/services/get-function.service.js';
+import { ListMovieFunctionsService } from '../../application/services/list-movie-functions.service.js';
 import { FunctionPriceResponseDto } from '../../application/dtos/function-price.dto.js';
 import { FunctionResponseDto } from '../../application/dtos/function-response.dto.js';
 
@@ -13,9 +13,9 @@ import { FunctionResponseDto } from '../../application/dtos/function-response.dt
 @Controller()
 export class FunctionsController {
   constructor(
-    private readonly listMovieFunctionsUseCase: ListMovieFunctionsUseCase,
-    private readonly getFunctionUseCase: GetFunctionUseCase,
-    private readonly getFunctionPricesUseCase: GetFunctionPricesUseCase,
+    private readonly listMovieFunctionsUseCase: ListMovieFunctionsService,
+    private readonly getFunctionUseCase: GetFunctionService,
+    private readonly getFunctionPricesUseCase: GetFunctionPricesService,
   ) {}
 
   @Get('movies/:movieId/functions')

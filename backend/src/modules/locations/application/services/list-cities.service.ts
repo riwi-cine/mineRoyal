@@ -4,7 +4,7 @@ import { DepartmentRepository } from '../../infrastructure/dao/department.dao.js
 import { CityResponseDto } from '../dtos/city-response.dto.js';
 
 @Injectable()
-export class ListCitiesUseCase {
+export class ListCitiesService {
   constructor(
     private readonly departmentRepository: DepartmentRepository,
     private readonly cityRepository: CityRepository,

@@ -1,9 +1,9 @@
 import { NotFoundException } from '@nestjs/common';
-import { GetMovieDetailUseCase } from './get-movie-detail.usecase.js';
+import { GetMovieDetailService } from './get-movie-detail.service.js';
 import { MovieRepository } from '../../infrastructure/dao/movie.repository.js';
 import { Movie } from '../../domain/entities/movie.entity.js';
 
-describe('GetMovieDetailUseCase', () => {
+describe('GetMovieDetailService', () => {
   const movie: Movie = {
     id: 'movie-1',
     title: 'Oppenheimer',
@@ -28,13 +28,13 @@ describe('GetMovieDetailUseCase', () => {
     const movieRepository = {
       findDetailById: vi.fn().mockResolvedValue(found),
     } as unknown as MovieRepository;
-    return { useCase: new GetMovieDetailUseCase(movieRepository), movieRepository };
+    return { useService: new GetMovieDetailService(movieRepository), movieRepository };
   };
 
   it('returns the movie detail when the movie exists and is active', async () => {
-    const { useCase } = buildUseCase(movie);
+    const { useService } = buildUseCase(movie);
 
-    const result = await useCase.execute('movie-1');
+    const result = await useService.execute('movie-1');
 
     expect(result.id).toBe('movie-1');
     expect(result.title).toBe('Oppenheimer');
@@ -42,14 +42,14 @@ describe('GetMovieDetailUseCase', () => {
   });
 
   it('throws NotFoundException when the movie does not exist', async () => {
-    const { useCase } = buildUseCase(null);
+    const { useService } = buildUseCase(null);
 
-    await expect(useCase.execute('missing-movie')).rejects.toThrow(NotFoundException);
+    await expect(useService.execute('missing-movie')).rejects.toThrow(NotFoundException);
   });
 
   it('throws NotFoundException when the movie is inactive', async () => {
-    const { useCase } = buildUseCase({ ...movie, isActive: false });
+    const { useService } = buildUseCase({ ...movie, isActive: false });
 
-    await expect(useCase.execute('movie-1')).rejects.toThrow(NotFoundException);
+    await expect(useService.execute('movie-1')).rejects.toThrow(NotFoundException);
   });
 });

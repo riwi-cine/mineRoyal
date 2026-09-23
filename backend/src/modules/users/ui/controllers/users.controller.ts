@@ -2,12 +2,12 @@ import { Body, Controller, Post } from '@nestjs/common';
 import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { SetUserLocationDto } from '../../application/dtos/set-user-location.dto.js';
 import { UserLocationResponseDto } from '../../application/dtos/user-location-response.dto.js';
-import { SetUserLocationUseCase } from '../../application/services/set-user-location.usecase.js';
+import { SetUserLocationService } from '../../application/services/set-user-location.service.js';
 
 @ApiTags('users')
 @Controller('users')
 export class UsersController {
-  constructor(private readonly setUserLocationUseCase: SetUserLocationUseCase) {}
+  constructor(private readonly setUserLocationUseCase: SetUserLocationService) {}
 
   @Post('location')
   @ApiOperation({ summary: 'Guarda o actualiza la ubicación (país, departamento y ciudad) del usuario.' })

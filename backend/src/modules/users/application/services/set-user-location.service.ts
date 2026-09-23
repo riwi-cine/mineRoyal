@@ -8,7 +8,7 @@ import { SetUserLocationDto } from '../dtos/set-user-location.dto.js';
 import { UserLocationResponseDto } from '../dtos/user-location-response.dto.js';
 
 @Injectable()
-export class SetUserLocationUseCase {
+export class SetUserLocationService {
   constructor(
     private readonly countryRepository: CountryRepository,
     private readonly departmentRepository: DepartmentRepository,

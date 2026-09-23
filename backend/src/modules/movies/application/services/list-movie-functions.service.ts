@@ -5,7 +5,7 @@ import { MovieRepository } from '../../infrastructure/dao/movie.repository.js';
 import { MovieFunctionResponseDto } from '../dtos/movie-function-response.dto.js';
 
 @Injectable()
-export class ListMovieFunctionsUseCase {
+export class ListMovieFunctionsService {
   constructor(
     private readonly movieRepository: MovieRepository,
     private readonly movieFunctionRepository: MovieFunctionRepository,

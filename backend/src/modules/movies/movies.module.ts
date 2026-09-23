@@ -8,15 +8,15 @@ import { Language } from './domain/entities/language.entity.js';
 import { Movie } from './domain/entities/movie.entity.js';
 import { MovieActor } from './domain/entities/movie-actor.entity.js';
 import { MovieFormat } from './domain/entities/movie-format.entity.js';
-import { MovieFunction } from './domain/entities/movie-function.entity.js';
 import { MovieGenre } from './domain/entities/movie-genre.entity.js';
 import { MovieLanguage } from './domain/entities/movie-language.entity.js';
 import { Room } from './domain/entities/room.entity.js';
-import { MovieFunctionRepository } from './infrastructure/dao/movie-function.repository.js';
+import { MovieFunction } from './domain/entities/movie-function.entity.js';
 import { MovieRepository } from './infrastructure/dao/movie.repository.js';
-import { GetMovieDetailUseCase } from './application/services/get-movie-detail.usecase.js';
-import { ListMovieFunctionsUseCase } from './application/services/list-movie-functions.usecase.js';
-import { ListMovieRecommendationsUseCase } from './application/services/list-movie-recommendations.usecase.js';
+import { MovieFunctionRepository } from './infrastructure/dao/movie-function.repository.js';
+import { GetMovieDetailService } from './application/services/get-movie-detail.service.js';
+import { ListMovieFunctionsService } from './application/services/list-movie-functions.service.js';
+import { ListMovieRecommendationsService } from './application/services/list-movie-recommendations.service.js';
 import { MoviesController } from './ui/controllers/movies.controller.js';
 import { UsersModule } from '../users/users.module.js';
 
@@ -42,9 +42,9 @@ import { UsersModule } from '../users/users.module.js';
   providers: [
     MovieRepository,
     MovieFunctionRepository,
-    GetMovieDetailUseCase,
-    ListMovieFunctionsUseCase,
-    ListMovieRecommendationsUseCase,
+    GetMovieDetailService,
+    ListMovieFunctionsService,
+    ListMovieRecommendationsService,
   ],
   exports: [MovieRepository, MovieFunctionRepository],
 })

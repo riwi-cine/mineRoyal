@@ -3,7 +3,7 @@ import { FunctionFilters, FunctionRepository } from '../../infrastructure/dao/fu
 import { FunctionResponseDto } from '../dtos/function-response.dto.js';
 
 @Injectable()
-export class ListMovieFunctionsUseCase {
+export class ListMovieFunctionsService {
   constructor(private readonly functionRepository: FunctionRepository) {}
 
   async execute(movieId: string, filters: FunctionFilters): Promise<FunctionResponseDto[]> {

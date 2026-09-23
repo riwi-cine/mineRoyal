@@ -3,7 +3,7 @@ import { MovieRepository } from '../../infrastructure/dao/movie.repository.js';
 import { MovieDetailResponseDto } from '../dtos/movie-detail-response.dto.js';
 
 @Injectable()
-export class GetMovieDetailUseCase {
+export class GetMovieDetailService {
   constructor(private readonly movieRepository: MovieRepository) {}
 
   async execute(movieId: string): Promise<MovieDetailResponseDto> {

@@ -3,7 +3,7 @@ import { MovieRepository } from '../../infrastructure/dao/movie.repository.js';
 import { MovieSummaryResponseDto } from '../dtos/movie-summary-response.dto.js';
 
 @Injectable()
-export class ListMovieRecommendationsUseCase {
+export class ListMovieRecommendationsService {
   private static readonly MAX_RECOMMENDATIONS = 5;
 
   constructor(private readonly movieRepository: MovieRepository) {}
@@ -31,7 +31,7 @@ export class ListMovieRecommendationsUseCase {
       .sort((a, b) => b.overlap - a.overlap || a.movie.title.localeCompare(b.movie.title));
 
     return scored
-      .slice(0, ListMovieRecommendationsUseCase.MAX_RECOMMENDATIONS)
+      .slice(0, ListMovieRecommendationsService.MAX_RECOMMENDATIONS)
       .map((entry) => new MovieSummaryResponseDto(entry.movie));
   }
 }

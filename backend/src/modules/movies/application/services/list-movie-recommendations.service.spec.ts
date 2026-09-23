@@ -1,9 +1,9 @@
 import { NotFoundException } from '@nestjs/common';
-import { ListMovieRecommendationsUseCase } from './list-movie-recommendations.usecase.js';
+import { ListMovieRecommendationsService } from './list-movie-recommendations.service.js';
 import { MovieRepository } from '../../infrastructure/dao/movie.repository.js';
 import { Movie } from '../../domain/entities/movie.entity.js';
 
-describe('ListMovieRecommendationsUseCase', () => {
+describe('ListMovieRecommendationsService', () => {
   const buildMovie = (id: string, title: string, genreIds: string[]): Movie =>
     ({
       id,
@@ -23,8 +23,8 @@ describe('ListMovieRecommendationsUseCase', () => {
       findActiveWithGenres: vi.fn().mockResolvedValue([target, other1, other2, unrelated]),
     } as unknown as MovieRepository;
 
-    const useCase = new ListMovieRecommendationsUseCase(movieRepository);
-    const result = await useCase.execute('movie-1');
+    const useService = new ListMovieRecommendationsService(movieRepository);
+    const result = await useService.execute('movie-1');
 
     expect(result.map((r) => r.id)).toEqual(['movie-3', 'movie-2']);
   });
@@ -35,8 +35,8 @@ describe('ListMovieRecommendationsUseCase', () => {
       findActiveWithGenres: vi.fn(),
     } as unknown as MovieRepository;
 
-    const useCase = new ListMovieRecommendationsUseCase(movieRepository);
-    const result = await useCase.execute('movie-1');
+    const useService = new ListMovieRecommendationsService(movieRepository);
+    const result = await useService.execute('movie-1');
 
     expect(result).toEqual([]);
   });
@@ -48,8 +48,8 @@ describe('ListMovieRecommendationsUseCase', () => {
       findActiveWithGenres: vi.fn().mockResolvedValue([target, unrelated]),
     } as unknown as MovieRepository;
 
-    const useCase = new ListMovieRecommendationsUseCase(movieRepository);
-    const result = await useCase.execute('movie-1');
+    const useService = new ListMovieRecommendationsService(movieRepository);
+    const result = await useService.execute('movie-1');
 
     expect(result).toEqual([]);
   });
@@ -60,8 +60,8 @@ describe('ListMovieRecommendationsUseCase', () => {
       findActiveWithGenres: vi.fn(),
     } as unknown as MovieRepository;
 
-    const useCase = new ListMovieRecommendationsUseCase(movieRepository);
+    const useService = new ListMovieRecommendationsService(movieRepository);
 
-    await expect(useCase.execute('missing-movie')).rejects.toThrow(NotFoundException);
+    await expect(useService.execute('missing-movie')).rejects.toThrow(NotFoundException);
   });
 });

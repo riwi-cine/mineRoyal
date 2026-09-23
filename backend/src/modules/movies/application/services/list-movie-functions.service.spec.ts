@@ -1,5 +1,5 @@
 import { NotFoundException } from '@nestjs/common';
-import { ListMovieFunctionsUseCase } from './list-movie-functions.usecase.js';
+import { ListMovieFunctionsService } from './list-movie-functions.service.js';
 import { MovieRepository } from '../../infrastructure/dao/movie.repository.js';
 import { MovieFunctionRepository } from '../../infrastructure/dao/movie-function.repository.js';
 import { UserLocationRepository } from '../../../users/infrastructure/dao/user-location.repository.js';
@@ -7,7 +7,7 @@ import { Movie } from '../../domain/entities/movie.entity.js';
 import { MovieFunction } from '../../domain/entities/movie-function.entity.js';
 import { UserLocation } from '../../../users/domain/entities/user-location.entity.js';
 
-describe('ListMovieFunctionsUseCase', () => {
+describe('ListMovieFunctionsService', () => {
   const movie = { id: 'movie-1', isActive: true } as Movie;
   const userLocation = { userId: 'user-1', cityId: 'city-1' } as UserLocation;
 
@@ -45,15 +45,15 @@ describe('ListMovieFunctionsUseCase', () => {
     } as unknown as UserLocationRepository;
 
     return {
-      useCase: new ListMovieFunctionsUseCase(movieRepository, movieFunctionRepository, userLocationRepository),
+      useService: new ListMovieFunctionsService(movieRepository, movieFunctionRepository, userLocationRepository),
       movieFunctionRepository,
     };
   };
 
   it('returns future functions filtered by the user selected city', async () => {
-    const { useCase, movieFunctionRepository } = buildUseCase();
+    const { useService, movieFunctionRepository } = buildUseCase();
 
-    const result = await useCase.execute('movie-1', 'user-1');
+    const result = await useService.execute('movie-1', 'user-1');
 
     expect(movieFunctionRepository.findFutureByMovieAndCity).toHaveBeenCalledWith('movie-1', 'city-1');
     expect(result.cityId).toBe('city-1');
@@ -62,27 +62,27 @@ describe('ListMovieFunctionsUseCase', () => {
   });
 
   it('marks a function as sold out when there are no available seats', async () => {
-    const { useCase } = buildUseCase({ functions: [buildFunction({ availableSeats: 0 })] });
+    const { useService } = buildUseCase({ functions: [buildFunction({ availableSeats: 0 })] });
 
-    const result = await useCase.execute('movie-1', 'user-1');
+    const result = await useService.execute('movie-1', 'user-1');
 
     expect(result.functions[0].soldOut).toBe(true);
     expect(result.functions[0].available).toBe(false);
   });
 
   it('returns an informative response when there are no future functions', async () => {
-    const { useCase } = buildUseCase({ functions: [] });
+    const { useService } = buildUseCase({ functions: [] });
 
-    const result = await useCase.execute('movie-1', 'user-1');
+    const result = await useService.execute('movie-1', 'user-1');
 
     expect(result.functions).toEqual([]);
     expect(result.message).toBe('No hay funciones futuras disponibles para esta película.');
   });
 
   it('returns an informative response when the user has no saved location', async () => {
-    const { useCase } = buildUseCase({ userLocation: null });
+    const { useService } = buildUseCase({ userLocation: null });
 
-    const result = await useCase.execute('movie-1', 'user-1');
+    const result = await useService.execute('movie-1', 'user-1');
 
     expect(result.cityId).toBeNull();
     expect(result.functions).toEqual([]);
@@ -90,8 +90,8 @@ describe('ListMovieFunctionsUseCase', () => {
   });
 
   it('throws NotFoundException when the movie does not exist', async () => {
-    const { useCase } = buildUseCase({ movie: null });
+    const { useService } = buildUseCase({ movie: null });
 
-    await expect(useCase.execute('missing-movie', 'user-1')).rejects.toThrow(NotFoundException);
+    await expect(useService.execute('missing-movie', 'user-1')).rejects.toThrow(NotFoundException);
   });
 });

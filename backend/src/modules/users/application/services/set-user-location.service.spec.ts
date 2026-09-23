@@ -1,5 +1,5 @@
 import { BadRequestException, NotFoundException } from '@nestjs/common';
-import { SetUserLocationUseCase } from './set-user-location.usecase.js';
+import { SetUserLocationService } from './set-user-location.service.js';
 import { CinemaRepository } from '../../../locations/infrastructure/dao/cinema.dao.js';
 import { CityRepository } from '../../../locations/infrastructure/dao/city.dao.js';
 import { CountryRepository } from '../../../locations/infrastructure/dao/country.dao.js';
@@ -11,7 +11,7 @@ import { City } from '../../../locations/domain/entities/city.entity.js';
 import { UserLocation } from '../../domain/entities/user-location.entity.js';
 import { SetUserLocationDto } from '../dtos/set-user-location.dto.js';
 
-describe('SetUserLocationUseCase', () => {
+describe('SetUserLocationService', () => {
   const dto: SetUserLocationDto = {
     userId: 'user-1',
     countryId: 'country-1',
@@ -71,7 +71,7 @@ describe('SetUserLocationUseCase', () => {
     } as unknown as UserLocationRepository;
 
     return {
-      useCase: new SetUserLocationUseCase(
+      useService: new SetUserLocationService(
         countryRepository,
         departmentRepository,
         cityRepository,
@@ -84,9 +84,9 @@ describe('SetUserLocationUseCase', () => {
   };
 
   it('saves the location when everything is valid', async () => {
-    const { useCase, userLocationRepository } = buildUseCase();
+    const { useService, userLocationRepository } = buildUseCase();
 
-    const result = await useCase.execute(dto);
+    const result = await useService.execute(dto);
 
     expect(userLocationRepository.upsert).toHaveBeenCalledWith('user-1', 'country-1', 'department-1', 'city-1');
     expect(result.cityId).toBe('city-1');
@@ -94,54 +94,54 @@ describe('SetUserLocationUseCase', () => {
   });
 
   it('updates the location on a subsequent call (upsert)', async () => {
-    const { useCase, userLocationRepository } = buildUseCase();
+    const { useService, userLocationRepository } = buildUseCase();
 
-    await useCase.execute(dto);
-    await useCase.execute({ ...dto, cityId: 'city-1' });
+    await useService.execute(dto);
+    await useService.execute({ ...dto, cityId: 'city-1' });
 
     expect(userLocationRepository.upsert).toHaveBeenCalledTimes(2);
   });
 
   it('throws NotFoundException when the country does not exist', async () => {
-    const { useCase } = buildUseCase({ country: null });
+    const { useService } = buildUseCase({ country: null });
 
-    await expect(useCase.execute(dto)).rejects.toThrow(NotFoundException);
+    await expect(useService.execute(dto)).rejects.toThrow(NotFoundException);
   });
 
   it('throws NotFoundException when the department does not exist', async () => {
-    const { useCase } = buildUseCase({ department: null });
+    const { useService } = buildUseCase({ department: null });
 
-    await expect(useCase.execute(dto)).rejects.toThrow(NotFoundException);
+    await expect(useService.execute(dto)).rejects.toThrow(NotFoundException);
   });
 
   it('throws NotFoundException when the city does not exist', async () => {
-    const { useCase } = buildUseCase({ city: null });
+    const { useService } = buildUseCase({ city: null });
 
-    await expect(useCase.execute(dto)).rejects.toThrow(NotFoundException);
+    await expect(useService.execute(dto)).rejects.toThrow(NotFoundException);
   });
 
   it('rejects a department that does not belong to the given country', async () => {
-    const { useCase } = buildUseCase({ department: { ...department, countryId: 'other-country' } });
+    const { useService } = buildUseCase({ department: { ...department, countryId: 'other-country' } });
 
-    await expect(useCase.execute(dto)).rejects.toThrow(BadRequestException);
+    await expect(useService.execute(dto)).rejects.toThrow(BadRequestException);
   });
 
   it('rejects a city that does not belong to the given department', async () => {
-    const { useCase } = buildUseCase({ city: { ...city, departmentId: 'other-department' } });
+    const { useService } = buildUseCase({ city: { ...city, departmentId: 'other-department' } });
 
-    await expect(useCase.execute(dto)).rejects.toThrow(BadRequestException);
+    await expect(useService.execute(dto)).rejects.toThrow(BadRequestException);
   });
 
   it('rejects an inactive city', async () => {
-    const { useCase } = buildUseCase({ city: { ...city, isActive: false } });
+    const { useService } = buildUseCase({ city: { ...city, isActive: false } });
 
-    await expect(useCase.execute(dto)).rejects.toThrow(BadRequestException);
+    await expect(useService.execute(dto)).rejects.toThrow(BadRequestException);
   });
 
   it('rejects a city without active cinemas', async () => {
-    const { useCase, cinemaRepository } = buildUseCase({ activeCinemas: 0 });
+    const { useService, cinemaRepository } = buildUseCase({ activeCinemas: 0 });
 
-    await expect(useCase.execute(dto)).rejects.toThrow(BadRequestException);
+    await expect(useService.execute(dto)).rejects.toThrow(BadRequestException);
     expect(cinemaRepository.countActiveByCity).toHaveBeenCalledWith('city-1');
   });
 });

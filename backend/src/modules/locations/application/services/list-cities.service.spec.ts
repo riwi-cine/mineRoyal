@@ -1,11 +1,11 @@
 import { NotFoundException } from '@nestjs/common';
-import { ListCitiesUseCase } from './list-cities.usecase.js';
+import { ListCitiesService } from './list-cities.service.js';
 import { CityRepository } from '../../infrastructure/dao/city.dao.js';
 import { DepartmentRepository } from '../../infrastructure/dao/department.dao.js';
 import { City } from '../../domain/entities/city.entity.js';
 import { Department } from '../../domain/entities/department.entity.js';
 
-describe('ListCitiesUseCase', () => {
+describe('ListCitiesService', () => {
   const department: Department = {
     id: 'department-1',
     name: 'Antioquia',
@@ -27,7 +27,7 @@ describe('ListCitiesUseCase', () => {
   const buildUseCase = (
     departmentOverride: Department | null = department,
     cities: City[] = [city],
-  ): { useCase: ListCitiesUseCase; cityRepository: CityRepository } => {
+  ): { useService: ListCitiesService; cityRepository: CityRepository } => {
     const departmentRepository = {
       findById: vi.fn().mockResolvedValue(departmentOverride),
       findActiveByCountry: vi.fn(),
@@ -38,27 +38,27 @@ describe('ListCitiesUseCase', () => {
       findById: vi.fn(),
     } as unknown as CityRepository;
 
-    return { useCase: new ListCitiesUseCase(departmentRepository, cityRepository), cityRepository };
+    return { useService: new ListCitiesService(departmentRepository, cityRepository), cityRepository };
   };
 
   it('lists active cities for an existing active department', async () => {
-    const { useCase, cityRepository } = buildUseCase();
+    const { useService, cityRepository } = buildUseCase();
 
-    const result = await useCase.execute('department-1');
+    const result = await useService.execute('department-1');
 
     expect(cityRepository.findActiveByDepartment).toHaveBeenCalledWith('department-1');
     expect(result).toEqual([{ id: 'city-1', name: 'Medellín', departmentId: 'department-1' }]);
   });
 
   it('throws NotFoundException when the department does not exist', async () => {
-    const { useCase } = buildUseCase(null);
+    const { useService } = buildUseCase(null);
 
-    await expect(useCase.execute('missing-department')).rejects.toThrow(NotFoundException);
+    await expect(useService.execute('missing-department')).rejects.toThrow(NotFoundException);
   });
 
   it('throws NotFoundException when the department is inactive', async () => {
-    const { useCase } = buildUseCase({ ...department, isActive: false });
+    const { useService } = buildUseCase({ ...department, isActive: false });
 
-    await expect(useCase.execute('department-1')).rejects.toThrow(NotFoundException);
+    await expect(useService.execute('department-1')).rejects.toThrow(NotFoundException);
   });
 });
