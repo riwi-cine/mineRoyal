@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Post } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post } from '@nestjs/common';
 import {
   ApiBody,
   ApiCreatedResponse,
@@ -9,12 +9,13 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
-import { CreateUserDto } from '../../../../users/dto/create-user.dto.js';
-import { User } from '../../../../users/entities/user.entity/user.entity.js';
-import { UsersService } from '../../../../users/users.service.js';
+import { CreateUserDto } from '../../application/dtos/create-user.dto.js';
 import { SetUserLocationDto } from '../../application/dtos/set-user-location.dto.js';
+import { UpdateUserDto } from '../../application/dtos/update-user.dto.js';
 import { UserLocationResponseDto } from '../../application/dtos/user-location-response.dto.js';
 import { SetUserLocationUseCase } from '../../application/services/set-user-location.usecase.js';
+import { UsersService } from '../../application/services/users.service.js';
+import { User } from '../../domain/entities/user.entity.js';
 
 @ApiTags('Usuarios')
 @Controller('users')
@@ -36,7 +37,7 @@ export class UsersController {
   @ApiParam({ name: 'id', description: 'Identificador del usuario', type: Number, example: 1 })
   @ApiOkResponse({ description: 'Usuario obtenido correctamente', type: User })
   @ApiNotFoundResponse({ description: 'No existe un usuario con el identificador indicado' })
-  findOne(@Param('id') id: number) {
+  findOne(@Param('id', ParseIntPipe) id: number) {
     return this.usersService.findOne(id);
   }
 
@@ -45,6 +46,24 @@ export class UsersController {
   @ApiCreatedResponse({ description: 'Usuario creado correctamente', type: User })
   createUser(@Body() body: CreateUserDto) {
     return this.usersService.create(body);
+  }
+
+  @Patch(':id')
+  @ApiOperation({ summary: 'Actualizar un usuario' })
+  @ApiParam({ name: 'id', description: 'Identificador del usuario', type: Number, example: 1 })
+  @ApiOkResponse({ description: 'Usuario actualizado correctamente', type: User })
+  @ApiNotFoundResponse({ description: 'No existe un usuario con el identificador indicado' })
+  updateUser(@Param('id', ParseIntPipe) id: number, @Body() body: UpdateUserDto) {
+    return this.usersService.update(id, body);
+  }
+
+  @Delete(':id')
+  @ApiOperation({ summary: 'Eliminar un usuario' })
+  @ApiParam({ name: 'id', description: 'Identificador del usuario', type: Number, example: 1 })
+  @ApiOkResponse({ description: 'Usuario eliminado correctamente' })
+  @ApiNotFoundResponse({ description: 'No existe un usuario con el identificador indicado' })
+  deleteUser(@Param('id', ParseIntPipe) id: number) {
+    return this.usersService.delete(id);
   }
 
   @Post('location')
