@@ -6,6 +6,7 @@ import {
   ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
+  Relation,
   UpdateDateColumn,
 } from 'typeorm';
 import { Cinema } from '../../../locations/domain/entities/cinema.entity.js';
@@ -21,7 +22,7 @@ export class Room {
 
   @ManyToOne(() => Cinema, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'cinema_id' })
-  cinema?: Cinema;
+  cinema?: Relation<Cinema>;
 
   @Column({ type: 'varchar', length: 80 })
   name!: string;

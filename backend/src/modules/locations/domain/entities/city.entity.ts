@@ -6,6 +6,7 @@ import {
   ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
+  Relation,
   UpdateDateColumn,
 } from 'typeorm';
 import { z } from 'zod';
@@ -25,7 +26,7 @@ export class City {
 
   @ManyToOne(() => Department, (department) => department.cities, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'department_id' })
-  department?: Department;
+  department?: Relation<Department>;
 
   @Column({ name: 'is_active', type: 'boolean', default: true })
   isActive!: boolean;

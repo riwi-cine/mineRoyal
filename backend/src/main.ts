@@ -6,7 +6,7 @@ import { AppModule } from './app.module.js';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
-  app.enableShutdownHooks; // GracefulShutdown
+  app.enableShutdownHooks(); // GracefulShutdown
   app.useGlobalPipes(new ZodValidationPipe());
   app.setGlobalPrefix('api/v2');
   /**
@@ -38,7 +38,7 @@ async function bootstrap() {
    */
   SwaggerModule.setup('docs', app, documentFactory);
   const port = process.env.PORT ?? 3000;
-  await app.listen(port);
+  await app.listen(port, '0.0.0.0');
   console.log(`Server is running on: http://localhost:${port}`);
   console.log(`Swagger documentation: http://localhost:${port}/docs`);
 }

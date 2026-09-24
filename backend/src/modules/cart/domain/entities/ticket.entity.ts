@@ -1,4 +1,4 @@
-import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn, Relation } from 'typeorm';
 import { z } from 'zod';
 import { CinemaFunction } from '../../../functions/domain/entities/function.entity.js';
 import { Seats } from '../../../seats/domain/entities/seat.entity.js';
@@ -16,14 +16,14 @@ export class Ticket {
 
   @ManyToOne(() => CinemaFunction, { onDelete: 'RESTRICT' })
   @JoinColumn({ name: 'function_id' })
-  function?: CinemaFunction;
+  function?: Relation<CinemaFunction>;
 
   @Column({ name: 'seat_id', type: 'uuid' })
   seatId!: string;
 
   @ManyToOne(() => Seats, { onDelete: 'RESTRICT' })
   @JoinColumn({ name: 'seat_id' })
-  seat?: Seats;
+  seat?: Relation<Seats>;
 
   @Column({ name: 'holder_user_id', type: 'uuid' })
   holderUserId!: string;

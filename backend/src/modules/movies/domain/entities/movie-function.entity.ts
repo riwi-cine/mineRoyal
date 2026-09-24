@@ -5,6 +5,7 @@ import {
   JoinColumn,
   ManyToOne,
   PrimaryGeneratedColumn,
+  Relation,
   UpdateDateColumn,
 } from 'typeorm';
 import { Cinema } from '../../../locations/domain/entities/cinema.entity.js';
@@ -27,28 +28,28 @@ export class MovieFunction {
 
   @ManyToOne(() => Movie, (movie) => movie.movieFunctions, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'movie_id' })
-  movie?: Movie;
+  movie?: Relation<Movie>;
 
   @Column({ name: 'cinema_id', type: 'uuid' })
   cinemaId!: string;
 
   @ManyToOne(() => Cinema, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'cinema_id' })
-  cinema?: Cinema;
+  cinema?: Relation<Cinema>;
 
   @Column({ name: 'room_id', type: 'uuid' })
   roomId!: string;
 
   @ManyToOne(() => Room, (room) => room.movieFunctions, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'room_id' })
-  room?: Room;
+  room?: Relation<Room>;
 
   @Column({ name: 'format_id', type: 'uuid' })
   formatId!: string;
 
   @ManyToOne(() => Format, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'format_id' })
-  format?: Format;
+  format?: Relation<Format>;
 
   @Column({ name: 'starts_at', type: 'timestamp' })
   startsAt!: Date;

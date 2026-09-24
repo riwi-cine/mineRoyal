@@ -1,4 +1,4 @@
-import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn, Relation } from 'typeorm';
 import { Format } from './format.entity.js';
 import { Movie } from './movie.entity.js';
 
@@ -23,9 +23,9 @@ export class MovieFormat {
 
   @ManyToOne(() => Movie, (movie) => movie.movieFormats, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'movie_id' })
-  movie?: Movie;
+  movie?: Relation<Movie>;
 
   @ManyToOne(() => Format, (format) => format.movieFormats, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'format_id' })
-  format?: Format;
+  format?: Relation<Format>;
 }

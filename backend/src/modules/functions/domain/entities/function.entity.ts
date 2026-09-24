@@ -1,4 +1,4 @@
-import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn, Relation } from 'typeorm';
 import { z } from 'zod';
 import { Room } from '../../../seats/domain/entities/room.entity.js';
 import { FunctionType } from './function-type.entity.js';
@@ -16,14 +16,14 @@ export class CinemaFunction {
 
   @ManyToOne(() => Room, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'room_id' })
-  room?: Room;
+  room?: Relation<Room>;
 
   @Column({ name: 'function_type_id', type: 'uuid' })
   functionTypeId!: string;
 
   @ManyToOne(() => FunctionType, (functionType) => functionType.functions, { onDelete: 'RESTRICT' })
   @JoinColumn({ name: 'function_type_id' })
-  functionType?: FunctionType;
+  functionType?: Relation<FunctionType>;
 
   @Column({ name: 'starts_at', type: 'timestamptz' })
   startsAt!: Date;
