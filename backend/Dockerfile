@@ -53,7 +53,7 @@ EXPOSE 3000
 
 # Incorporar un HEALTHCHECK nativo compatible con Alpine (usando wget)
 HEALTHCHECK --interval=30s --timeout=10s --retries=3 --start-period=40s \
-  CMD wget -qO- http://localhost:3000/api/v1/health || exit 1
+  CMD wget -qO- http://127.0.0.1:3000/api/v2/health || exit 1
 
 ENTRYPOINT ["./docker-entrypoint.sh"]
 CMD ["node", "dist/main.js"]
