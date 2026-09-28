@@ -1,0 +1,390 @@
+import { randomUUID } from 'node:crypto';
+import { BadRequestException, GoneException, Injectable, NotFoundException } from '@nestjs/common';
+import { CinemaFunction } from '../../../functions/domain/entities/function.entity.js';
+import { Movie } from '../../../movies/domain/entities/movie.entity.js';
+import { GiftCardRepository } from '../../../promotions/infrastructure/dao/gift-card.repository.js';
+import { PromotionRepository } from '../../../promotions/infrastructure/dao/promotion.repository.js';
+import { Promotion } from '../../../promotions/domain/entities/promotion.entity.js';
+import { SeatLock } from '../../../seats/domain/entities/seat-lock.entity.js';
+import { MembershipRepository } from '../../../users/infrastructure/dao/membership.repository.js';
+import { Cart } from '../../domain/entities/cart.entity.js';
+import { CartConcessionItem } from '../../domain/entities/cart-concession-item.entity.js';
+import { CartItemRepository } from '../../infrastructure/dao/cart-item.repository.js';
+import { CartRepository } from '../../infrastructure/dao/cart.repository.js';
+import {
+  ApplyGiftCardDto,
+  CartIdDto,
+  CartResponse,
+  CartSummary,
+  CartTicketLine,
+  CreateCartDto,
+  DeleteCartResult,
+  UpdateCartDto,
+} from '../dtos/cart.dto.js';
+
+/** RN-046: a cart expires ten minutes after its last activity. */
+const CART_TTL_MINUTES = 10;
+
+/**
+ * Placeholder tax rate ("Impuestos" in the cart summary). Like
+ * `MAX_SEATS_PER_RESERVATION` in HU-010's SeatService, this is exposed as a
+ * constant until an administrative configuration for it exists.
+ */
+const TAX_RATE = 0.19;
+
+/**
+ * Cart service (HU-011) — Administración del Carrito de Compras
+ * -----------------------------------------------------------------
+ * Orchestrates the temporary cart created after seat selection: aggregates
+ * the "Entradas" (from HU-010's seat locks) and "Confitería" line items,
+ * applies membership/promotion/gift-card discounts, and computes the totals
+ * shown before checkout.
+ */
+@Injectable()
+export class CartService {
+  constructor(
+    private readonly cartRepository: CartRepository,
+    private readonly cartItemRepository: CartItemRepository,
+    private readonly membershipRepository: MembershipRepository,
+    private readonly promotionRepository: PromotionRepository,
+    private readonly giftCardRepository: GiftCardRepository,
+  ) {}
+
+  async createOrGetCart(dto: CreateCartDto): Promise<CartResponse> {
+    const existing = await this.resolveExpiry(await this.cartRepository.findActiveByUserId(dto.userId));
+    if (existing) {
+      return this.buildResponse(existing);
+    }
+
+    const cart = await this.cartRepository.create({
+      id: dto.cartId ?? randomUUID(),
+      userId: dto.userId,
+      status: 'ACTIVE',
+      membershipApplied: false,
+      expiresAt: this.nextExpiry(),
+    });
+    return this.buildResponse(cart);
+  }
+
+  async getCart(cartId: string): Promise<CartResponse> {
+    const cart = await this.getCartOrFail(cartId);
+    return this.buildResponse(cart);
+  }
+
+  async updateCart(dto: UpdateCartDto): Promise<CartResponse> {
+    const cart = await this.getActiveCartOrFail(dto.cartId);
+
+    const productIds = [...new Set(dto.concessionItems.map((item) => item.productId))];
+    const products = await this.cartItemRepository.findProductsByIds(productIds);
+    const productById = new Map(products.map((product) => [product.id, product]));
+
+    for (const item of dto.concessionItems) {
+      const product = productById.get(item.productId);
+      if (!product) {
+        throw new NotFoundException(`Producto ${item.productId} no encontrado.`);
+      }
+      if (item.quantity === 0) {
+        await this.cartItemRepository.removeConcessionItem(cart.id, item.productId);
+        continue;
+      }
+      if (!product.active) {
+        throw new BadRequestException(`El producto "${product.name}" no está disponible.`);
+      }
+      // Validación: no permitir agregar productos agotados.
+      if (product.stock < item.quantity) {
+        throw new BadRequestException(`No hay suficiente stock de "${product.name}" (disponible: ${product.stock}).`);
+      }
+      await this.cartItemRepository.upsertConcessionItem(cart.id, item.productId, item.quantity, Number(product.price));
+    }
+
+    await this.touch(cart);
+    return this.buildResponse(cart);
+  }
+
+  async deleteCart(dto: CartIdDto): Promise<DeleteCartResult> {
+    const cart = await this.getCartOrFail(dto.cartId);
+
+    const releasedSeats = await this.cartRepository.deleteLocksByCartId(cart.id);
+    await this.cartItemRepository.clearConcessionItems(cart.id);
+    await this.cartItemRepository.clearGiftCards(cart.id);
+    await this.cartRepository.updateStatus(cart.id, 'CANCELLED');
+
+    return { cartId: cart.id, status: 'CANCELLED', releasedSeats };
+  }
+
+  async applyMembership(dto: CartIdDto): Promise<CartResponse> {
+    const cart = await this.getActiveCartOrFail(dto.cartId);
+
+    const membership = await this.membershipRepository.findActiveByUserId(cart.userId);
+    if (!membership) {
+      throw new NotFoundException('No se encontró una membresía activa para este usuario.');
+    }
+
+    cart.membershipApplied = true;
+    await this.cartRepository.save(cart);
+    await this.touch(cart);
+    return this.buildResponse(cart);
+  }
+
+  async applyGiftCard(dto: ApplyGiftCardDto): Promise<CartResponse> {
+    const cart = await this.getActiveCartOrFail(dto.cartId);
+
+    const giftCard = await this.giftCardRepository.findByCode(dto.code);
+    if (!giftCard || !giftCard.active) {
+      throw new NotFoundException('Bono no encontrado o inactivo.');
+    }
+    if (Number(giftCard.balance) <= 0) {
+      throw new BadRequestException('El bono no tiene saldo disponible.');
+    }
+
+    await this.cartItemRepository.addGiftCard(cart.id, giftCard.id);
+    await this.touch(cart);
+    return this.buildResponse(cart);
+  }
+
+  // ---------------------------------------------------------------------
+  // Internal helpers
+  // ---------------------------------------------------------------------
+
+  private async getCartOrFail(cartId: string): Promise<Cart> {
+    const cart = await this.resolveExpiry(await this.cartRepository.findById(cartId));
+    if (!cart) {
+      throw new NotFoundException('Carrito no encontrado.');
+    }
+    return cart;
+  }
+
+  private async getActiveCartOrFail(cartId: string): Promise<Cart> {
+    const cart = await this.getCartOrFail(cartId);
+    if (cart.status !== 'ACTIVE') {
+      throw new GoneException(`El carrito ya no está activo (estado: ${cart.status}).`);
+    }
+    return cart;
+  }
+
+  private nextExpiry(): Date {
+    return new Date(Date.now() + CART_TTL_MINUTES * 60 * 1000);
+  }
+
+  /** RN-046: refreshes the ten-minute inactivity window after a mutation. */
+  private async touch(cart: Cart): Promise<void> {
+    cart.expiresAt = this.nextExpiry();
+    await this.cartRepository.save(cart);
+  }
+
+  /** RN-046: lazily expires a cart (and releases its seat locks) once its window has elapsed. */
+  private async resolveExpiry(cart: Cart | null): Promise<Cart | null> {
+    if (!cart) {
+      return null;
+    }
+    if (cart.status === 'ACTIVE' && cart.expiresAt.getTime() <= Date.now()) {
+      await this.cartRepository.deleteLocksByCartId(cart.id);
+      await this.cartRepository.updateStatus(cart.id, 'EXPIRED');
+      cart.status = 'EXPIRED';
+    }
+    return cart;
+  }
+
+  private async buildResponse(cart: Cart): Promise<CartResponse> {
+    const [locks, concessionItems, cartGiftCards, membership] = await Promise.all([
+      this.cartRepository.findLocksByCartId(cart.id),
+      this.cartItemRepository.findConcessionItemsByCartId(cart.id),
+      this.cartItemRepository.findGiftCardsByCartId(cart.id),
+      cart.membershipApplied ? this.membershipRepository.findActiveByUserId(cart.userId) : Promise.resolve(null),
+    ]);
+
+    const functionIds = [...new Set(locks.map((lock) => lock.functionId))];
+    const functions = await this.cartRepository.findFunctionsByIds(functionIds);
+    const movieIds = [...new Set(functions.map((f) => f.movieId))];
+    const movies = await this.cartRepository.findMoviesByIds(movieIds);
+
+    const membershipDiscountPercent = membership ? Number(membership.discountPercent) : 0;
+    const tickets = buildTicketLines(locks, functions, movies, membershipDiscountPercent);
+
+    const productIds = concessionItems.map((item) => item.productId);
+    const promotions = await this.promotionRepository.findActiveApplicable(productIds);
+    const { lines: concessionLines, totalDiscount: promotionsDiscount } = buildConcessionLines(
+      concessionItems,
+      promotions,
+    );
+
+    const ticketsSubtotal = tickets.reduce((sum, line) => sum + line.unitPrice * line.quantity, 0);
+    const membershipDiscount = tickets.reduce((sum, line) => sum + line.discount, 0);
+    const concessionsSubtotal = concessionLines.reduce((sum, line) => sum + line.unitPrice * line.quantity, 0);
+
+    const subtotal = ticketsSubtotal + concessionsSubtotal;
+    const taxableBase = Math.max(subtotal - membershipDiscount - promotionsDiscount, 0);
+    const taxes = taxableBase * TAX_RATE;
+    const totalBeforeGiftCards = taxableBase + taxes;
+
+    const { appliedGiftCards, giftCardsApplied } = applyGiftCards(cartGiftCards, totalBeforeGiftCards);
+    const total = Math.max(totalBeforeGiftCards - giftCardsApplied, 0);
+
+    const summary: CartSummary = {
+      subtotal,
+      membershipDiscount,
+      promotionsDiscount,
+      giftCardsApplied,
+      taxRate: TAX_RATE,
+      taxes,
+      total,
+    };
+
+    return {
+      id: cart.id,
+      userId: cart.userId,
+      status: cart.status,
+      membershipApplied: cart.membershipApplied,
+      expiresAt: cart.expiresAt,
+      createdAt: cart.createdAt,
+      tickets,
+      concessionItems: concessionLines,
+      appliedGiftCards,
+      summary,
+    };
+  }
+}
+
+// ---------------------------------------------------------------------
+// Pure calculation helpers
+// ---------------------------------------------------------------------
+
+function buildTicketLines(
+  locks: SeatLock[],
+  functions: CinemaFunction[],
+  movies: Movie[],
+  membershipDiscountPercent: number,
+): CartTicketLine[] {
+  const functionById = new Map(functions.map((f) => [f.id, f]));
+  const movieById = new Map(movies.map((m) => [m.id, m]));
+
+  const locksByFunction = new Map<string, SeatLock[]>();
+  for (const lock of locks) {
+    const list = locksByFunction.get(lock.functionId) ?? [];
+    list.push(lock);
+    locksByFunction.set(lock.functionId, list);
+  }
+
+  const lines: CartTicketLine[] = [];
+  for (const [functionId, functionLocks] of locksByFunction) {
+    const cineFunction = functionById.get(functionId);
+    if (!cineFunction) {
+      continue;
+    }
+    const movie = movieById.get(cineFunction.movieId);
+    const basePrice = Number(cineFunction.basePrice);
+    const roomExtraPrice = Number(cineFunction.room?.extraPrice ?? 0);
+    const unitPrice = basePrice + roomExtraPrice;
+    const quantity = functionLocks.length;
+    const lineSubtotal = unitPrice * quantity;
+    const discount = membershipDiscountPercent > 0 ? lineSubtotal * (membershipDiscountPercent / 100) : 0;
+    const expiresAt = functionLocks.reduce<Date>(
+      (earliest, lock) => (lock.expiresAt < earliest ? lock.expiresAt : earliest),
+      functionLocks[0].expiresAt,
+    );
+
+    lines.push({
+      functionId,
+      movieTitle: movie?.title ?? 'Película no disponible',
+      startsAt: cineFunction.startsAt,
+      roomName: cineFunction.room?.name ?? '',
+      format: cineFunction.functionType?.projection ?? '',
+      quantity,
+      seatLabels: functionLocks.map((lock) => `${lock.seat?.row ?? ''}${lock.seat?.number ?? ''}`).sort(),
+      unitPrice,
+      discount,
+      total: Math.max(lineSubtotal - discount, 0),
+      expiresAt,
+    });
+  }
+
+  return lines.sort((a, b) => a.startsAt.getTime() - b.startsAt.getTime());
+}
+
+/**
+ * RN-048: when several active promotions apply to the same target and at
+ * least one of them forbids combination, only the single best one is used;
+ * otherwise every combinable promotion stacks.
+ */
+function pickDiscount(promotions: Promotion[], base: number): { amount: number; promotion: Promotion | null } {
+  if (promotions.length === 0 || base <= 0) {
+    return { amount: 0, promotion: null };
+  }
+  const candidates = promotions.map((promotion) => ({
+    promotion,
+    amount:
+      promotion.discountType === 'PERCENTAGE'
+        ? base * (Number(promotion.discountValue) / 100)
+        : Number(promotion.discountValue),
+  }));
+  const best = candidates.reduce((a, b) => (b.amount > a.amount ? b : a));
+
+  const hasNonCombinable = promotions.some((promotion) => !promotion.combinable);
+  if (hasNonCombinable) {
+    return { amount: Math.min(best.amount, base), promotion: best.promotion };
+  }
+  const total = candidates.reduce((sum, candidate) => sum + candidate.amount, 0);
+  return { amount: Math.min(total, base), promotion: best.promotion };
+}
+
+function buildConcessionLines(
+  items: CartConcessionItem[],
+  promotions: Promotion[],
+): { lines: CartResponse['concessionItems']; totalDiscount: number } {
+  const cartWidePromotions = promotions.filter((p) => p.productId === null);
+  const promotionsByProduct = new Map<string, Promotion[]>();
+  for (const promotion of promotions) {
+    if (promotion.productId === null) {
+      continue;
+    }
+    const list = promotionsByProduct.get(promotion.productId) ?? [];
+    list.push(promotion);
+    promotionsByProduct.set(promotion.productId, list);
+  }
+
+  let productLevelDiscount = 0;
+  const lines = items.map((item) => {
+    const lineSubtotal = Number(item.unitPrice) * item.quantity;
+    const { amount, promotion } = pickDiscount(promotionsByProduct.get(item.productId) ?? [], lineSubtotal);
+    productLevelDiscount += amount;
+
+    return {
+      id: item.id,
+      productId: item.productId,
+      name: item.product?.name ?? '',
+      imageUrl: item.product?.imageUrl ?? null,
+      quantity: item.quantity,
+      unitPrice: Number(item.unitPrice),
+      promotion: promotion ? { code: promotion.code, name: promotion.name, discountAmount: amount } : null,
+      subtotal: Math.max(lineSubtotal - amount, 0),
+    };
+  });
+
+  const concessionsSubtotalAfterProductPromos = lines.reduce((sum, line) => sum + line.subtotal, 0);
+  const cartWide = pickDiscount(cartWidePromotions, concessionsSubtotalAfterProductPromos);
+
+  return { lines, totalDiscount: productLevelDiscount + cartWide.amount };
+}
+
+/**
+ * Redeems attached gift cards, in the order they were applied, against the
+ * cart's total until either the total or every gift card's balance is exhausted.
+ */
+function applyGiftCards(
+  cartGiftCards: { giftCard?: { code: string; balance: number } }[],
+  totalBeforeGiftCards: number,
+): { appliedGiftCards: CartResponse['appliedGiftCards']; giftCardsApplied: number } {
+  let remaining = totalBeforeGiftCards;
+  const appliedGiftCards = cartGiftCards
+    .filter((cartGiftCard) => cartGiftCard.giftCard)
+    .map((cartGiftCard) => {
+      const giftCard = cartGiftCard.giftCard!;
+      const balance = Number(giftCard.balance);
+      const amountApplied = Math.min(balance, remaining);
+      remaining = Math.max(remaining - amountApplied, 0);
+      return { code: giftCard.code, amountApplied, remainingBalance: balance - amountApplied };
+    });
+
+  const giftCardsApplied = appliedGiftCards.reduce((sum, entry) => sum + entry.amountApplied, 0);
+  return { appliedGiftCards, giftCardsApplied };
+}
