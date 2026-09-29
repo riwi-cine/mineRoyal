@@ -1,30 +1,30 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { Cinema } from './domain/entities/cinema.entity.js';
-import { City } from './domain/entities/city.entity.js';
-import { Country } from './domain/entities/country.entity.js';
-import { Department } from './domain/entities/department.entity.js';
-import { CinemaRepository } from './infrastructure/dao/cinema.dao.js';
-import { CityRepository } from './infrastructure/dao/city.dao.js';
-import { CountryRepository } from './infrastructure/dao/country.dao.js';
-import { DepartmentRepository } from './infrastructure/dao/department.dao.js';
-import { ListCitiesUseCase } from './application/services/list-cities.usecase.js';
-import { ListCountriesUseCase } from './application/services/list-countries.usecase.js';
-import { ListDepartmentsUseCase } from './application/services/list-departments.usecase.js';
-import { LocationsController } from './ui/controllers/locations.controller.js';
+import { Cinema } from './entities/cinema.entity.js';
+import { City } from './entities/city.entity.js';
+import { Country } from './entities/country.entity.js';
+import { Department } from './entities/department.entity.js';
+import { CinemaDao } from './dao/cinema.dao.js';
+import { CityDao } from './dao/city.dao.js';
+import { CountryDao } from './dao/country.dao.js';
+import { DepartmentDao } from './dao/department.dao.js';
+import { ListCitiesService } from './services/list-cities.service.js';
+import { ListCountriesService } from './services/list-countries.service.js';
+import { ListDepartmentsService } from './services/list-departments.service.js';
+import { LocationsController } from './controllers/locations.controller.js';
 
 @Module({
   imports: [TypeOrmModule.forFeature([Country, Department, City, Cinema])],
   controllers: [LocationsController],
   providers: [
-    CountryRepository,
-    DepartmentRepository,
-    CityRepository,
-    CinemaRepository,
-    ListCountriesUseCase,
-    ListDepartmentsUseCase,
-    ListCitiesUseCase,
+    CountryDao,
+    DepartmentDao,
+    CityDao,
+    CinemaDao,
+    ListCountriesService,
+    ListDepartmentsService,
+    ListCitiesService,
   ],
-  exports: [CountryRepository, DepartmentRepository, CityRepository, CinemaRepository],
+  exports: [CountryDao, DepartmentDao, CityDao, CinemaDao],
 })
 export class LocationsModule {}

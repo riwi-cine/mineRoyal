@@ -12,7 +12,7 @@ export const dataSourceOptions: DataSourceOptions = {
   username: process.env.DB_USERNAME ?? 'postgres',
   password: process.env.DB_PASSWORD ?? 'postgres',
   database: process.env.DB_NAME ?? 'mineroyal',
-  entities: [`${__dirname}/../../modules/**/domain/entities/*.entity{.ts,.js}`],
+  entities: [`${__dirname}/../../modules/**/entities/*.entity{.ts,.js}`],
   migrations: [`${__dirname}/migrations/*{.ts,.js}`],
   namingStrategy: new SnakeCaseNamingStrategy(),
   synchronize: false,

@@ -2,17 +2,17 @@ import { INestApplication } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { ZodValidationPipe } from 'nestjs-zod';
 import request from 'supertest';
-import { CinemaRepository } from '../../src/modules/locations/infrastructure/dao/cinema.dao.js';
-import { CityRepository } from '../../src/modules/locations/infrastructure/dao/city.dao.js';
-import { CountryRepository } from '../../src/modules/locations/infrastructure/dao/country.dao.js';
-import { DepartmentRepository } from '../../src/modules/locations/infrastructure/dao/department.dao.js';
-import { ListCitiesUseCase } from '../../src/modules/locations/application/services/list-cities.usecase.js';
-import { ListCountriesUseCase } from '../../src/modules/locations/application/services/list-countries.usecase.js';
-import { ListDepartmentsUseCase } from '../../src/modules/locations/application/services/list-departments.usecase.js';
-import { LocationsController } from '../../src/modules/locations/ui/controllers/locations.controller.js';
-import { UserLocationRepository } from '../../src/modules/users/infrastructure/dao/user-location.repository.js';
-import { SetUserLocationUseCase } from '../../src/modules/users/application/services/set-user-location.usecase.js';
-import { UsersController } from '../../src/modules/users/ui/controllers/users.controller.js';
+import { CinemaDao } from '../../src/modules/locations/dao/cinema.dao.js';
+import { CityDao } from '../../src/modules/locations/dao/city.dao.js';
+import { CountryDao } from '../../src/modules/locations/dao/country.dao.js';
+import { DepartmentDao } from '../../src/modules/locations/dao/department.dao.js';
+import { ListCitiesService } from '../../src/modules/locations/services/list-cities.service.js';
+import { ListCountriesService } from '../../src/modules/locations/services/list-countries.service.js';
+import { ListDepartmentsService } from '../../src/modules/locations/services/list-departments.service.js';
+import { LocationsController } from '../../src/modules/locations/controllers/locations.controller.js';
+import { UserLocationDao } from '../../src/modules/users/dao/user-location.dao.js';
+import { SetUserLocationService } from '../../src/modules/users/services/set-user-location.service.js';
+import { UsersController } from '../../src/modules/users/controllers/users.controller.js';
 
 const countryId = '11111111-1111-4111-a111-111111111111';
 const departmentId = '22222222-2222-4222-a222-222222222222';
@@ -31,25 +31,25 @@ describe('Location selection (e2e happy path)', () => {
     const moduleRef: TestingModule = await Test.createTestingModule({
       controllers: [LocationsController, UsersController],
       providers: [
-        ListCountriesUseCase,
-        ListDepartmentsUseCase,
-        ListCitiesUseCase,
-        SetUserLocationUseCase,
+        ListCountriesService,
+        ListDepartmentsService,
+        ListCitiesService,
+        SetUserLocationService,
         {
-          provide: CountryRepository,
+          provide: CountryDao,
           useValue: { findAllActive: async () => [country], findById: async () => country },
         },
         {
-          provide: DepartmentRepository,
+          provide: DepartmentDao,
           useValue: { findActiveByCountry: async () => [department], findById: async () => department },
         },
         {
-          provide: CityRepository,
+          provide: CityDao,
           useValue: { findActiveByDepartment: async () => [city], findById: async () => city },
         },
-        { provide: CinemaRepository, useValue: { countActiveByCity: async () => 1 } },
+        { provide: CinemaDao, useValue: { countActiveByCity: async () => 1 } },
         {
-          provide: UserLocationRepository,
+          provide: UserLocationDao,
           useValue: {
             findByUserId: async () => savedLocation,
             upsert: async (uId: string, cId: string, dId: string, ciId: string) => {

@@ -36,7 +36,8 @@ services:
     restart: unless-stopped
     healthcheck:
       # Usamos wget nativo de Alpine para evitar fallos con curl
-      test: ['CMD', 'wget', '-qO-', 'http://localhost:3000/']
+      # 127.0.0.1 fuerza IPv4 (localhost resuelve a ::1 donde la app no escucha)
+      test: ['CMD', 'wget', '-qO-', '--timeout=5', 'http://127.0.0.1:3000/api/v2/health']
       interval: 30s
       timeout: 10s
       retries: 3
@@ -50,7 +51,7 @@ services:
       - POSTGRES_PASSWORD=${DB_PASSWORD}
       - POSTGRES_DB=${DB_NAME}
     ports:
-      - '5432:5432' # Expuesto temporalmente para inspección local con clientes SQL
+      - '5433:5432' # Expuesto temporalmente para inspección local con clientes SQL
     volumes:
       - pgdata:/var/lib/postgresql/data
     networks:

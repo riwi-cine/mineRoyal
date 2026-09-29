@@ -6,23 +6,21 @@ This document explains how the seat-selection feature (`modules/seats`) is imple
 
 ```
 modules/seats/
-├── domain/entities/
+├── entities/
 │   ├── seat.entity.ts        # Seats table + canonical SeatCategory enum
 │   ├── seat-lock.entity.ts   # Temporary lock on a seat for a cart
 │   ├── room.entity.ts        # Physical room, belongs to a Cinema
 │   └── room-type.entity.ts   # Standard / VIP / IMAX room type
-├── application/
-│   ├── dtos/seat-map.dto.ts  # Zod-based request/response contracts
-│   └── services/seat.service.ts  # Business logic (SeatService)
-├── infrastructure/dao/seat.dao.ts  # SeatRepository — the only class that talks to TypeORM
-└── ui/
-    ├── controllers/seat.controller.ts            # GET /seats/:seatId
-    ├── controllers/function-seats.controller.ts  # GET /functions/:functionId/seats
-    ├── controllers/reservations.controller.ts    # /reservations/*
-    └── seat.module.ts
+├── dtos/seat-map.dto.ts       # Zod-based request/response contracts
+├── services/seat.service.ts   # Business logic (SeatService)
+├── dao/seat.dao.ts            # SeatDao — the only class that talks to TypeORM
+├── controllers/
+│   ├── seat.controller.ts            # GET /seats/:seatId
+│   └── function-seats.controller.ts  # GET /functions/:functionId/seats
+└── seat.module.ts             # also registers ReservationsController (modules/reservations/controllers/)
 ```
 
-The flow follows the same Controller → UseCase/Service → Repository → DB layering used by the `locations` module: controllers only translate HTTP in/out, `SeatService` holds all business rules, and `SeatRepository` is the sole place that issues TypeORM queries.
+The flow follows the same Controller → Service → DAO → DB layering used by the `locations` module: controllers only translate HTTP in/out, `SeatService` holds all business rules, and `SeatDao` is the sole place that issues TypeORM queries.
 
 ## 2. Data model
 
@@ -64,15 +62,15 @@ Query: `functionId`, `cartId`. Returns the seats currently locked by that cart f
 
 ## 5. Relationship to HU-009
 
-`SeatRepository.findFunctionForSelection` and `FunctionRepository.findSelectableById` (in `modules/functions`, built for HU-009) apply the **same** selectability rule: `active = true` and `startsAt > now` (RN-035/RN-036). A function that's inactive or already started 404s consistently whether you're fetching its details, its price, or its seat map.
+`SeatDao.findFunctionForSelection` and `FunctionDao.findSelectableById` (in `modules/functions`, built for HU-009) apply the **same** selectability rule: `active = true` and `startsAt > now` (RN-035/RN-036). A function that's inactive or already started 404s consistently whether you're fetching its details, its price, or its seat map.
 
 ## 6. Bugs found and fixed in this pass
 
 The service and DAO layers for HU-010 already existed, but the feature was not actually reachable or runnable:
 
 1. **`seat.module.ts` failed to compile.** It used default imports (`import Module from '@nestjs/common'`) instead of named imports, which `tsc` rejects (`Module`/`TypeOrmModule` have no default export). Fixed to named imports.
-2. **`SeatModule` never provided `SeatService`**, and didn't register `CinemaFunction` or `Ticket` with `TypeOrmModule.forFeature`, even though `SeatRepository`'s constructor injects `Repository<CinemaFunction>` and `Repository<Ticket>` — this would have thrown a dependency-injection error at boot. Both are now registered.
-3. **`Room` and `RoomType` were never registered anywhere** in the app (no module called `forFeature` on them), yet `SeatRepository.findFunctionForSelection` eagerly loads the `room` relation and `Seats` has a `ManyToOne` to `Room`. TypeORM would have failed to build entity metadata for these relations at bootstrap. Fixed by registering `Room`/`RoomType` in `SeatModule` (they live in the same domain folder).
+2. **`SeatModule` never provided `SeatService`**, and didn't register `CinemaFunction` or `Ticket` with `TypeOrmModule.forFeature`, even though `SeatDao`'s constructor injects `Repository<CinemaFunction>` and `Repository<Ticket>` — this would have thrown a dependency-injection error at boot. Both are now registered.
+3. **`Room` and `RoomType` were never registered anywhere** in the app (no module called `forFeature` on them), yet `SeatDao.findFunctionForSelection` eagerly loads the `room` relation and `Seats` has a `ManyToOne` to `Room`. TypeORM would have failed to build entity metadata for these relations at bootstrap. Fixed by registering `Room`/`RoomType` in `SeatModule` (they live in the same module's `entities/` folder).
 4. **`SeatController` never called `SeatService` at all.** It only exposed `GET /seats/:seatId`, threw a bare `Error` (→ unhandled 500) instead of `NotFoundException` on a missing seat, and none of the four HU-010 endpoints (`GET /functions/{id}/seats`, `POST /reservations/lock-seats`, `DELETE /reservations/release-seats`, `GET /reservations/summary`) existed anywhere. Fixed by keeping `SeatController` for the single-seat lookup (now throwing `NotFoundException`) and adding `FunctionSeatsController` and `ReservationsController` to expose the rest.
 5. **`SeatModule` was never imported into `AppModule`** — none of this was wired into the running application. Added.
 6. **`seats.seatType` was an unconstrained `varchar`.** The service used to normalize half a dozen free-form aliases (`'PREFERENCIAL'`, `'MOVILIDAD REDUCIDA'`, `'INHABILITADA'`, ...) into the four real categories, which meant bad data could silently exist in the DB and only be papered over on read. Fixed by making `SeatCategory` the single source of truth (defined in `seat.entity.ts`) and constraining both the entity's zod schema and `seat-map.dto.ts` to it; `toCategory` in the service is now a thin safety net instead of an alias table.
