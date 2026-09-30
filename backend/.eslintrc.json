@@ -1,19 +1,24 @@
 {
   "parser": "@typescript-eslint/parser",
   "parserOptions": {
-    "project": ["**/tsconfig.json"],
+    "project": ["./tsconfig.json"],
     "sourceType": "module"
   },
-  "plugins": ["@typescript-eslint", "vitest"],
-  "extends": [
-    "eslint:recommended",
-    "plugin:vitest/recommended",
-    "plugin:@typescript-eslint/recommended",
-    "plugin:prettier/recommended"
-  ],
+  "plugins": ["@typescript-eslint"],
+  "extends": ["eslint:recommended", "plugin:@typescript-eslint/recommended", "plugin:prettier/recommended"],
   "root": true,
   "env": {
     "node": true
+  },
+  "globals": {
+    "vi": "readonly",
+    "describe": "readonly",
+    "it": "readonly",
+    "expect": "readonly",
+    "beforeEach": "readonly",
+    "afterEach": "readonly",
+    "beforeAll": "readonly",
+    "afterAll": "readonly"
   },
   "ignorePatterns": [".eslintrc.json", "dist", "node_modules"],
   "rules": {
