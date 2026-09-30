@@ -1,6 +1,6 @@
 import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 import { Genre } from './genre.entity.js';
-import { Movie } from './movie.entity.js';
+import type { Movie } from './movie.entity.js';
 
 @Entity('movie_genres')
 export class MovieGenre {
@@ -13,7 +13,7 @@ export class MovieGenre {
   @Column({ name: 'genre_id', type: 'uuid' })
   genreId!: string;
 
-  @ManyToOne(() => Movie, (movie) => movie.movieGenres, { onDelete: 'CASCADE' })
+  @ManyToOne("Movie", (movie: Movie) => movie.movieGenres, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'movie_id' })
   movie?: Movie;
 

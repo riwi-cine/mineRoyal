@@ -10,11 +10,11 @@ import {
 } from 'typeorm';
 import { z } from 'zod';
 import { Director } from './director.entity.js';
-import { MovieActor } from './movie-actor.entity.js';
 import { MovieFormat } from './movie-format.entity.js';
 import { MovieFunction } from './movie-function.entity.js';
 import { MovieGenre } from './movie-genre.entity.js';
 import { MovieLanguage } from './movie-language.entity.js';
+import type { MovieActor } from './movie-actor.entity.js';
 
 @Entity('movies')
 export class Movie {
@@ -61,7 +61,7 @@ export class Movie {
   @OneToMany(() => MovieGenre, (movieGenre) => movieGenre.movie)
   movieGenres?: MovieGenre[];
 
-  @OneToMany(() => MovieActor, (movieActor) => movieActor.movie)
+  @OneToMany("MovieActor", (movieActor: MovieActor) => movieActor.movie)
   movieActors?: MovieActor[];
 
   @OneToMany(() => MovieLanguage, (movieLanguage) => movieLanguage.movie)

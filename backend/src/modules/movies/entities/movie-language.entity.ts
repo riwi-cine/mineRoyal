@@ -1,6 +1,6 @@
 import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 import { Language } from './language.entity.js';
-import { Movie } from './movie.entity.js';
+import type { Movie } from './movie.entity.js';
 
 @Entity('movie_languages')
 export class MovieLanguage {
@@ -13,7 +13,7 @@ export class MovieLanguage {
   @Column({ name: 'language_id', type: 'uuid' })
   languageId!: string;
 
-  @ManyToOne(() => Movie, (movie) => movie.movieLanguages, { onDelete: 'CASCADE' })
+  @ManyToOne("Movie", (movie: Movie) => movie.movieLanguages, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'movie_id' })
   movie?: Movie;
 

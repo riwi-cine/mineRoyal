@@ -1,5 +1,5 @@
 import { Column, CreateDateColumn, Entity, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
-import { MovieActor } from './movie-actor.entity.js';
+import type { MovieActor } from './movie-actor.entity.js';
 
 @Entity('actors')
 export class Actor {
@@ -9,7 +9,7 @@ export class Actor {
   @Column({ type: 'varchar', length: 120 })
   name!: string;
 
-  @OneToMany(() => MovieActor, (movieActor) => movieActor.actor)
+  @OneToMany("MovieActor", (movieActor: MovieActor) => movieActor.actor)
   movieActors?: MovieActor[];
 
   @CreateDateColumn({ name: 'created_at' })

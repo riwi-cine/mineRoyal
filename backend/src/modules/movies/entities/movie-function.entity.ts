@@ -9,7 +9,7 @@ import {
 } from 'typeorm';
 import { Cinema } from '../../locations/entities/cinema.entity.js';
 import { Format } from './format.entity.js';
-import { Movie } from './movie.entity.js';
+import type { Movie } from './movie.entity.js';
 import { Room } from './room.entity.js';
 
 const priceTransformer = {
@@ -25,7 +25,7 @@ export class MovieFunction {
   @Column({ name: 'movie_id', type: 'uuid' })
   movieId!: string;
 
-  @ManyToOne(() => Movie, (movie) => movie.movieFunctions, { onDelete: 'CASCADE' })
+  @ManyToOne("Movie", (movie: Movie) => movie.movieFunctions, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'movie_id' })
   movie?: Movie;
 

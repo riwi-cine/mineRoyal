@@ -9,7 +9,7 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 import { z } from 'zod';
-import { Room } from './room.entity.js';
+import type { Room } from './room.entity.js';
 
 /**
  * Canonical seat categories. Single source of truth reused by the entity's
@@ -29,7 +29,7 @@ export class Seats {
   @Column({ name: 'room_id', type: 'uuid' })
   roomId!: string;
 
-  @ManyToOne(() => Room, (room) => room.seats, { onDelete: 'CASCADE' })
+  @ManyToOne("Room", (room: Room) => room.seats, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'room_id' })
   room?: Room;
 

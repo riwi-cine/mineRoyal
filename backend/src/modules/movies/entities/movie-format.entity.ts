@@ -1,6 +1,6 @@
 import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 import { Format } from './format.entity.js';
-import { Movie } from './movie.entity.js';
+import type { Movie } from './movie.entity.js';
 
 const priceTransformer = {
   to: (value?: number): number | undefined => value,
@@ -21,7 +21,7 @@ export class MovieFormat {
   @Column({ name: 'price', type: 'numeric', precision: 10, scale: 2, transformer: priceTransformer })
   price!: number;
 
-  @ManyToOne(() => Movie, (movie) => movie.movieFormats, { onDelete: 'CASCADE' })
+  @ManyToOne("Movie", (movie: Movie) => movie.movieFormats, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'movie_id' })
   movie?: Movie;
 
