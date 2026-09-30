@@ -13,8 +13,7 @@
   ],
   "root": true,
   "env": {
-    "node": true,
-    "vitest": true
+    "node": true
   },
   "ignorePatterns": [".eslintrc.json", "dist", "node_modules"],
   "rules": {
