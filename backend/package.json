@@ -9,6 +9,7 @@
     "node": ">=20.19.0"
   },
   "scripts": {
+    "prepare": "cd .. && husky backend/.husky",
     "start": "nest start",
     "start:dev": "nest start --watch",
     "start:debug": "nest start --debug --watch",
@@ -67,6 +68,7 @@
     "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-prettier": "^5.1.1",
     "eslint-plugin-vitest": "^0.5.4",
+    "husky": "^9.1.7",
     "pg-hstore": "^2.3.4",
     "prettier": "^3.2.5",
     "supertest": "^6.3.4",
