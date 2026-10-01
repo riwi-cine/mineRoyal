@@ -13,7 +13,7 @@ export class MovieActor {
   @Column({ name: 'actor_id', type: 'uuid' })
   actorId!: string;
 
-  @ManyToOne("Movie", (movie: Movie) => movie.movieActors, { onDelete: 'CASCADE' })
+  @ManyToOne('Movie', (movie: Movie) => movie.movieActors, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'movie_id' })
   movie?: Movie;
 

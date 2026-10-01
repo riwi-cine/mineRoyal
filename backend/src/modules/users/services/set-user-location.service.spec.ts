@@ -71,13 +71,7 @@ describe('SetUserLocationService', () => {
     } as unknown as UserLocationDao;
 
     return {
-      service: new SetUserLocationService(
-        countryDao,
-        departmentDao,
-        cityDao,
-        cinemaDao,
-        userLocationDao,
-      ),
+      service: new SetUserLocationService(countryDao, departmentDao, cityDao, cinemaDao, userLocationDao),
       userLocationDao,
       cinemaDao,
     };

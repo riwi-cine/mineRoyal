@@ -13,7 +13,7 @@ export class MovieGenre {
   @Column({ name: 'genre_id', type: 'uuid' })
   genreId!: string;
 
-  @ManyToOne("Movie", (movie: Movie) => movie.movieGenres, { onDelete: 'CASCADE' })
+  @ManyToOne('Movie', (movie: Movie) => movie.movieGenres, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'movie_id' })
   movie?: Movie;
 

@@ -61,7 +61,7 @@ export class Movie {
   @OneToMany(() => MovieGenre, (movieGenre) => movieGenre.movie)
   movieGenres?: MovieGenre[];
 
-  @OneToMany("MovieActor", (movieActor: MovieActor) => movieActor.movie)
+  @OneToMany('MovieActor', (movieActor: MovieActor) => movieActor.movie)
   movieActors?: MovieActor[];
 
   @OneToMany(() => MovieLanguage, (movieLanguage) => movieLanguage.movie)

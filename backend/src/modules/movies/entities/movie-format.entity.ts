@@ -21,7 +21,7 @@ export class MovieFormat {
   @Column({ name: 'price', type: 'numeric', precision: 10, scale: 2, transformer: priceTransformer })
   price!: number;
 
-  @ManyToOne("Movie", (movie: Movie) => movie.movieFormats, { onDelete: 'CASCADE' })
+  @ManyToOne('Movie', (movie: Movie) => movie.movieFormats, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'movie_id' })
   movie?: Movie;
 
