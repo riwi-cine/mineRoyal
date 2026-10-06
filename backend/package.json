@@ -23,10 +23,10 @@
     "seed": "ts-node ./src/infrastructure/database/seeders/index.ts",
     "test": "vitest run",
     "test:watch": "vitest",
-    "test:cov": "vitest run --coverage",
+    "test:cov": "vitest run --coverage --coverage.reporter=text --coverage.reporter=lcov",
     "test:e2e": "vitest run --config vitest.config.e2e.ts",
     "test:ui": "vitest --ui",
-    "sonar": "pnpm test:cov && sonar-scanner-npm"
+    "sonar": "pnpm test:cov && timeout /t 2 && sonar-scanner-npm"
   },
   "dependencies": {
     "@nestjs/common": "^10.4.0",
