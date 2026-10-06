@@ -1,0 +1,7 @@
+organization=riwi-cine
+projectKey=riwi-cine-api
+serverUrl=https://sonarcloud.io
+serverVersion=8.0.0.109847
+dashboardUrl=https://sonarcloud.io/dashboard?id=riwi-cine-api
+ceTaskId=AaEOoORcNSV4mnU4oW7z
+ceTaskUrl=https://sonarcloud.io/api/ce/task?id=AaEOoORcNSV4mnU4oW7z

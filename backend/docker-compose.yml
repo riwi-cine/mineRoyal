@@ -20,6 +20,8 @@ services:
     environment:
       - NODE_ENV=development
       - NODE_OPTIONS=--max-old-space-size=1536
+      - DB_HOST=postgres
+      - DB_PORT=5432
     volumes:
       - .:/app:z
       - backend_node_modules:/app/node_modules
@@ -47,7 +49,7 @@ services:
     image: postgres:16-alpine
     env_file: .env
     environment:
-      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_USER=${DB_USERNAME}
       - POSTGRES_PASSWORD=${DB_PASSWORD}
       - POSTGRES_DB=${DB_NAME}
     ports:
@@ -58,7 +60,7 @@ services:
       - multicine-net
     restart: unless-stopped
     healthcheck:
-      test: ['CMD-SHELL', 'pg_isready -U ${DB_USER}']
+      test: ['CMD-SHELL', 'pg_isready -U ${DB_USERNAME}']
       interval: 10s
       timeout: 5s
       retries: 5

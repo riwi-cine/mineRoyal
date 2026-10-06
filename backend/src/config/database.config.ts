@@ -16,7 +16,7 @@ export const typeOrmConfig = (config: ConfigService): TypeOrmModuleOptions => {
       ? { url }
       : {
           host: config.get<string>('DB_HOST', 'postgres'),
-          port: config.get<number>('DB_PORT', 5432),
+          port: config.get<number>('DB_PORT', 5433),
           username: config.get<string>('DB_USERNAME', 'postgres'),
           password: config.get<string>('DB_PASSWORD', 'postgres'),
           database: config.get<string>('DB_NAME', 'mineroyal'),
