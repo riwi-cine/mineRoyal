@@ -12,6 +12,7 @@ import { ListDepartmentsService } from '../../src/modules/locations/services/lis
 import { LocationsController } from '../../src/modules/locations/controllers/locations.controller.js';
 import { UserLocationDao } from '../../src/modules/users/dao/user-location.dao.js';
 import { SetUserLocationService } from '../../src/modules/users/services/set-user-location.service.js';
+import { UsersService } from '../../src/modules/users/services/users.service.js';
 import { UsersController } from '../../src/modules/users/controllers/users.controller.js';
 
 const countryId = '11111111-1111-4111-a111-111111111111';
@@ -35,6 +36,7 @@ describe('Location selection (e2e happy path)', () => {
         ListDepartmentsService,
         ListCitiesService,
         SetUserLocationService,
+        { provide: UsersService, useValue: {} },
         {
           provide: CountryDao,
           useValue: { findAllActive: async () => [country], findById: async () => country },
