@@ -18,8 +18,8 @@ export class UserLocation {
   @PrimaryGeneratedColumn('uuid')
   id!: string;
 
-  @Column({ name: 'user_id', type: 'uuid', unique: true })
-  userId!: string;
+  @Column({ name: 'user_id', type: 'integer', unique: true })
+  userId!: number;
 
   @Column({ name: 'country_id', type: 'uuid' })
   countryId!: string;
@@ -54,7 +54,7 @@ export class UserLocation {
  */
 export const userLocationSchema = z.object({
   id: z.string().uuid(),
-  userId: z.string().uuid(),
+  userId: z.number().int().positive(),
   countryId: z.string().uuid(),
   departmentId: z.string().uuid(),
   cityId: z.string().uuid(),

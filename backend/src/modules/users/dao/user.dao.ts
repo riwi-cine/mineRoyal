@@ -14,7 +14,7 @@ export class UserDao {
     });
   }
 
-  findById(id: string, includeDeleted = false): Promise<User | null> {
+  findById(id: number, includeDeleted = false): Promise<User | null> {
     return this.dao.findOne({ where: { id }, withDeleted: includeDeleted });
   }
 
@@ -30,11 +30,11 @@ export class UserDao {
     return this.dao.save(this.dao.merge(user, changes));
   }
 
-  async softDelete(id: string): Promise<void> {
+  async softDelete(id: number): Promise<void> {
     await this.dao.softDelete(id);
   }
 
-  async restore(id: string): Promise<void> {
+  async restore(id: number): Promise<void> {
     await this.dao.restore(id);
   }
 }

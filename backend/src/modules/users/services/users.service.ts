@@ -1,4 +1,4 @@
-import { ConflictException, BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { hash } from 'bcrypt';
 import { UserDao } from '../dao/user.dao.js';
 import { CreateUserDto } from '../dtos/create-user.dto.js';
@@ -28,17 +28,14 @@ export class UsersService {
     return users.map((user) => new UserResponseDto(user));
   }
 
-  async findOne(id: string): Promise<UserResponseDto> {
+  async findOne(id: number): Promise<UserResponseDto> {
     return new UserResponseDto(await this.getUser(id));
   }
 
-  async update(id: string, dto: UpdateUserDto): Promise<UserResponseDto> {
+  async update(id: number, dto: UpdateUserDto): Promise<UserResponseDto> {
     const user = await this.getUser(id);
     if (dto.email && dto.email !== user.email) {
-      const existing = await this.userDao.findByEmail(dto.email, true);
-      if (existing && existing.id !== id) {
-        throw new ConflictException('Ya existe un usuario con ese correo.');
-      }
+      throw new ConflictException('Ya existe un usuario con ese correo.');
     }
 
     const changes: Partial<Pick<User, 'name' | 'email' | 'passwordHash'>> = {};
@@ -49,14 +46,14 @@ export class UsersService {
     return new UserResponseDto(await this.userDao.update(user, changes));
   }
 
-  async remove(id: string): Promise<UserResponseDto> {
+  async remove(id: number): Promise<UserResponseDto> {
     const user = await this.getUser(id);
     await this.userDao.softDelete(id);
     const deletedUser = await this.userDao.findById(id, true);
     return new UserResponseDto(deletedUser ?? { ...user, deletedAt: new Date() });
   }
 
-  async restore(id: string): Promise<UserResponseDto> {
+  async restore(id: number): Promise<UserResponseDto> {
     const user = await this.userDao.findById(id, true);
     if (!user) throw new NotFoundException('Usuario no encontrado.');
     if (!user.deletedAt) throw new BadRequestException('El usuario no está eliminado.');
@@ -67,7 +64,7 @@ export class UsersService {
     return new UserResponseDto(restoredUser);
   }
 
-  private async getUser(id: string): Promise<User> {
+  private async getUser(id: number): Promise<User> {
     const user = await this.userDao.findById(id);
     if (!user) throw new NotFoundException('Usuario no encontrado.');
     return user;

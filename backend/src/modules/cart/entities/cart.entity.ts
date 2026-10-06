@@ -6,8 +6,8 @@ export class Cart {
   @PrimaryGeneratedColumn('uuid')
   id!: string;
 
-  @Column({ name: 'user_id', type: 'uuid' })
-  userId!: string;
+  @Column({ name: 'user_id', type: 'integer' })
+  userId!: number;
 
   @Column({ type: 'varchar', length: 30 })
   status!: string;
@@ -24,7 +24,7 @@ export class Cart {
  */
 export const cartSchema = z.object({
   id: z.string().uuid(),
-  userId: z.string().uuid(),
+  userId: z.number().int().positive(),
   status: z.string().min(1).max(30),
   expiresAt: z.date(),
   createdAt: z.date(),

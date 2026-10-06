@@ -2,8 +2,8 @@ import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { User } from '../entities/user.entity.js';
 
 export class UserResponseDto {
-  @ApiProperty({ example: 'c3a1e6b0-1234-4a56-9abc-1234567890ab' })
-  id: string;
+  @ApiProperty({ example: 42, type: Number })
+  id: number;
 
   @ApiProperty({ example: 'Ana Pérez' })
   name: string;

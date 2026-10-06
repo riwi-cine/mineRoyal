@@ -1,15 +1,15 @@
 import { NotFoundException } from '@nestjs/common';
-import { ListMovieFunctionsService } from './list-movie-functions.service.js';
-import { MovieDao } from '../dao/movie.dao.js';
-import { MovieFunctionDao } from '../dao/movie-function.dao.js';
 import { UserLocationDao } from '../../users/dao/user-location.dao.js';
-import { Movie } from '../entities/movie.entity.js';
-import { MovieFunction } from '../entities/movie-function.entity.js';
 import { UserLocation } from '../../users/entities/user-location.entity.js';
+import { MovieFunctionDao } from '../dao/movie-function.dao.js';
+import { MovieDao } from '../dao/movie.dao.js';
+import { MovieFunction } from '../entities/movie-function.entity.js';
+import { Movie } from '../entities/movie.entity.js';
+import { ListMovieFunctionsService } from './list-movie-functions.service.js';
 
 describe('ListMovieFunctionsService', () => {
   const movie = { id: 'movie-1', isActive: true } as Movie;
-  const userLocation = { userId: 'user-1', cityId: 'city-1' } as UserLocation;
+  const userLocation = { userId: 1, cityId: 'city-1' } as UserLocation;
 
   const buildFunction = (overrides: Partial<MovieFunction> = {}): MovieFunction =>
     ({
@@ -53,7 +53,7 @@ describe('ListMovieFunctionsService', () => {
   it('returns future functions filtered by the user selected city', async () => {
     const { service, movieFunctionDao } = buildService();
 
-    const result = await service.execute('movie-1', 'user-1');
+    const result = await service.execute('movie-1', 1);
 
     expect(movieFunctionDao.findFutureByMovieAndCity).toHaveBeenCalledWith('movie-1', 'city-1');
     expect(result.cityId).toBe('city-1');
@@ -64,7 +64,7 @@ describe('ListMovieFunctionsService', () => {
   it('marks a function as sold out when there are no available seats', async () => {
     const { service } = buildService({ functions: [buildFunction({ availableSeats: 0 })] });
 
-    const result = await service.execute('movie-1', 'user-1');
+    const result = await service.execute('movie-1', 1);
 
     expect(result.functions[0].soldOut).toBe(true);
     expect(result.functions[0].available).toBe(false);
@@ -73,7 +73,7 @@ describe('ListMovieFunctionsService', () => {
   it('returns an informative response when there are no future functions', async () => {
     const { service } = buildService({ functions: [] });
 
-    const result = await service.execute('movie-1', 'user-1');
+    const result = await service.execute('movie-1', 1);
 
     expect(result.functions).toEqual([]);
     expect(result.message).toBe('No hay funciones futuras disponibles para esta película.');
@@ -82,7 +82,7 @@ describe('ListMovieFunctionsService', () => {
   it('returns an informative response when the user has no saved location', async () => {
     const { service } = buildService({ userLocation: null });
 
-    const result = await service.execute('movie-1', 'user-1');
+    const result = await service.execute('movie-1', 1);
 
     expect(result.cityId).toBeNull();
     expect(result.functions).toEqual([]);
@@ -92,6 +92,6 @@ describe('ListMovieFunctionsService', () => {
   it('throws NotFoundException when the movie does not exist', async () => {
     const { service } = buildService({ movie: null });
 
-    await expect(service.execute('missing-movie', 'user-1')).rejects.toThrow(NotFoundException);
+    await expect(service.execute('missing-movie', 1)).rejects.toThrow(NotFoundException);
   });
 });

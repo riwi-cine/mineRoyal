@@ -14,7 +14,7 @@ export class ListMovieFunctionsService {
 
   async execute(
     movieId: string,
-    userId: string,
+    userId: number,
   ): Promise<{ movieId: string; cityId: string | null; functions: MovieFunctionResponseDto[]; message?: string }> {
     const movie = await this.movieDao.findActiveById(movieId);
     if (!movie) {

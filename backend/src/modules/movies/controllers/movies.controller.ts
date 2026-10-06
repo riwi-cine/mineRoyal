@@ -1,4 +1,4 @@
-import { Controller, Get, Param, ParseUUIDPipe, Query } from '@nestjs/common';
+import { Controller, Get, Param, ParseIntPipe, ParseUUIDPipe, Query } from '@nestjs/common';
 import { ApiOperation, ApiParam, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { MovieDetailResponseDto } from '../dtos/movie-detail-response.dto.js';
 import { MovieSummaryResponseDto } from '../dtos/movie-summary-response.dto.js';
@@ -27,12 +27,17 @@ export class MoviesController {
   @Get(':id/functions')
   @ApiOperation({ summary: 'Lista las funciones futuras de una película para la ciudad del usuario.' })
   @ApiParam({ name: 'id', description: 'Identificador de la película', format: 'uuid' })
-  @ApiQuery({ name: 'userId', required: true, description: 'Identificador del usuario (temporal hasta autenticación)' })
+  @ApiQuery({
+    name: 'userId',
+    required: true,
+    type: Number,
+    description: 'Identificador numérico del usuario (temporal hasta autenticación).',
+  })
   @ApiResponse({ status: 200, description: 'Funciones disponibles para la película.' })
   @ApiResponse({ status: 404, description: 'Película no encontrada.' })
   getFunctions(
     @Param('id', ParseUUIDPipe) id: string,
-    @Query('userId', ParseUUIDPipe) userId: string,
+    @Query('userId', ParseIntPipe) userId: number,
   ): ReturnType<ListMovieFunctionsService['execute']> {
     return this.listMovieFunctionsService.execute(id, userId);
   }

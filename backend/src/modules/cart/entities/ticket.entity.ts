@@ -25,8 +25,8 @@ export class Ticket {
   @JoinColumn({ name: 'seat_id' })
   seat?: Seats;
 
-  @Column({ name: 'holder_user_id', type: 'uuid' })
-  holderUserId!: string;
+  @Column({ name: 'holder_user_id', type: 'integer' })
+  holderUserId!: number;
 
   @Column({ name: 'qr_code', type: 'varchar', length: 255, unique: true })
   qrCode!: string;
@@ -37,8 +37,8 @@ export class Ticket {
   @Column({ type: 'varchar', length: 30 })
   status!: string;
 
-  @Column({ name: 'scanned_by_user_id', type: 'uuid', nullable: true })
-  scannedByUserId!: string | null;
+  @Column({ name: 'scanned_by_user_id', type: 'integer', nullable: true })
+  scannedByUserId!: number | null;
 
   @Column({ name: 'scanned_at', type: 'timestamptz', nullable: true })
   scannedAt!: Date | null;
@@ -52,11 +52,11 @@ export const ticketSchema = z.object({
   orderId: z.string().uuid(),
   functionId: z.string().uuid(),
   seatId: z.string().uuid(),
-  holderUserId: z.string().uuid(),
+  holderUserId: z.number().int().positive(),
   qrCode: z.string().min(1).max(255),
   price: z.coerce.number().nonnegative(),
   status: z.string().min(1).max(30),
-  scannedByUserId: z.string().uuid().nullable(),
+  scannedByUserId: z.number().int().positive().nullable(),
   scannedAt: z.date().nullable(),
 });
 

@@ -6,26 +6,19 @@ import {
   Get,
   Param,
   ParseBoolPipe,
-  ParseUUIDPipe,
+  ParseIntPipe,
   Patch,
   Post,
   Query,
 } from '@nestjs/common';
-import {
-  ApiBody,
-  ApiOperation,
-  ApiParam,
-  ApiQuery,
-  ApiResponse,
-  ApiTags,
-} from '@nestjs/swagger';
+import { ApiBody, ApiOperation, ApiParam, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { CreateUserDto } from '../dtos/create-user.dto.js';
 import { SetUserLocationDto } from '../dtos/set-user-location.dto.js';
 import { UpdateUserDto } from '../dtos/update-user.dto.js';
-import { UserResponseDto } from '../dtos/user-response.dto.js';
 import { UserLocationResponseDto } from '../dtos/user-location-response.dto.js';
-import { UsersService } from '../services/users.service.js';
+import { UserResponseDto } from '../dtos/user-response.dto.js';
 import { SetUserLocationService } from '../services/set-user-location.service.js';
+import { UsersService } from '../services/users.service.js';
 
 @ApiTags('users')
 @Controller('users')
@@ -57,42 +50,42 @@ export class UsersController {
 
   @Get(':id')
   @ApiOperation({ summary: 'Obtiene un usuario activo por su identificador.' })
-  @ApiParam({ name: 'id', description: 'UUID del usuario.' })
+  @ApiParam({ name: 'id', description: 'Identificador numérico del usuario.', type: Number })
   @ApiResponse({ status: 200, description: 'Usuario encontrado.', type: UserResponseDto })
-  @ApiResponse({ status: 400, description: 'El identificador no es un UUID válido.' })
+  @ApiResponse({ status: 400, description: 'El identificador debe ser un número entero.' })
   @ApiResponse({ status: 404, description: 'Usuario no encontrado.' })
-  findOne(@Param('id', ParseUUIDPipe) id: string): Promise<UserResponseDto> {
+  findOne(@Param('id', ParseIntPipe) id: number): Promise<UserResponseDto> {
     return this.usersService.findOne(id);
   }
 
   @Patch(':id')
   @ApiOperation({ summary: 'Actualiza los datos de un usuario activo.' })
-  @ApiParam({ name: 'id', description: 'UUID del usuario.' })
+  @ApiParam({ name: 'id', description: 'Identificador numérico del usuario.', type: Number })
   @ApiBody({ type: UpdateUserDto })
   @ApiResponse({ status: 200, description: 'Usuario actualizado.', type: UserResponseDto })
   @ApiResponse({ status: 400, description: 'Datos de entrada inválidos.' })
   @ApiResponse({ status: 404, description: 'Usuario no encontrado.' })
   @ApiResponse({ status: 409, description: 'Ya existe un usuario con ese correo.' })
-  update(@Param('id', ParseUUIDPipe) id: string, @Body() dto: UpdateUserDto): Promise<UserResponseDto> {
+  update(@Param('id', ParseIntPipe) id: number, @Body() dto: UpdateUserDto): Promise<UserResponseDto> {
     return this.usersService.update(id, dto);
   }
 
   @Delete(':id')
   @ApiOperation({ summary: 'Elimina lógicamente un usuario activo.' })
-  @ApiParam({ name: 'id', description: 'UUID del usuario.' })
+  @ApiParam({ name: 'id', description: 'Identificador numérico del usuario.', type: Number })
   @ApiResponse({ status: 200, description: 'Usuario eliminado lógicamente.', type: UserResponseDto })
   @ApiResponse({ status: 404, description: 'Usuario no encontrado.' })
-  remove(@Param('id', ParseUUIDPipe) id: string): Promise<UserResponseDto> {
+  remove(@Param('id', ParseIntPipe) id: number): Promise<UserResponseDto> {
     return this.usersService.remove(id);
   }
 
   @Patch(':id/restore')
   @ApiOperation({ summary: 'Restaura un usuario eliminado lógicamente.' })
-  @ApiParam({ name: 'id', description: 'UUID del usuario.' })
+  @ApiParam({ name: 'id', description: 'Identificador numérico del usuario.', type: Number })
   @ApiResponse({ status: 200, description: 'Usuario restaurado.', type: UserResponseDto })
   @ApiResponse({ status: 400, description: 'El usuario no está eliminado.' })
   @ApiResponse({ status: 404, description: 'Usuario no encontrado.' })
-  restore(@Param('id', ParseUUIDPipe) id: string): Promise<UserResponseDto> {
+  restore(@Param('id', ParseIntPipe) id: number): Promise<UserResponseDto> {
     return this.usersService.restore(id);
   }
 
