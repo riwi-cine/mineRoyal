@@ -9,7 +9,8 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 import { z } from 'zod';
-import { Cinema } from './cinema.entity.js';
+// EntityTarget import removed
+import type { Cinema } from './cinema.entity.js';
 import { Department } from './department.entity.js';
 
 @Entity('cities')
@@ -30,7 +31,7 @@ export class City {
   @Column({ name: 'is_active', type: 'boolean', default: true })
   isActive!: boolean;
 
-  @OneToMany(() => Cinema, (cinema) => cinema.city)
+    @OneToMany('Cinema', (cinema) => (cinema as any).city)
   cinemas?: Cinema[];
 
   @CreateDateColumn({ name: 'created_at' })
