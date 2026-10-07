@@ -1,57 +1,67 @@
-
 # Etapa 1: Base - Dependencias compartidas
-
 FROM node:20-alpine AS base
-WORKDIR /app
-COPY package*.json ./
 
+# Configuración del PATH para binarios de pnpm en entornos basados en Alpine
+ENV PNPM_HOME="/pnpm"
+ENV PATH="$PNPM_HOME:$PATH"
+
+# Habilita los ejecutables de Corepack (detectará "packageManager" en package.json)
+RUN corepack enable
+
+WORKDIR /app
+
+# Copia de manifiestos y definición del workspace antes del código para aprovechar la caché
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml* ./
 
 # Etapa 2: Desarrollo - Hot-reload y bind mounts
-
 FROM base AS development
 ENV NODE_ENV=development
-# Usar npm ci también en dev para mantener paridad estricta
-RUN npm ci
+
+# Instalación determinista aprovechando la caché global de paquetes
+RUN --mount=type=cache,id=pnpm,target=/pnpm/store \
+    pnpm install --frozen-lockfile
+
 COPY . .
+
 EXPOSE 3000
-CMD ["npm", "run", "start:dev"]
+
+CMD ["pnpm", "run", "start:dev"]
 
 # Etapa 3: Build - Compilación de TypeScript a JavaScript
-
 FROM base AS build
-RUN npm ci
-COPY . .
-RUN npm run build
+ENV NODE_ENV=development
 
+RUN --mount=type=cache,id=pnpm,target=/pnpm/store \
+    pnpm install --frozen-lockfile
+
+COPY . .
+
+# Compilación de la aplicación NestJS
+RUN pnpm run build
+
+# Poda las dependencias para aislar exclusivamente las requeridas en runtime
+RUN --mount=type=cache,id=pnpm,target=/pnpm/store \
+    pnpm prune --prod
 
 # Etapa 4: Producción - Imagen liviana, segura y sin herramientas de build
-
 FROM node:20-alpine AS production
 ENV NODE_ENV=production
 WORKDIR /app
 
-# Crear un usuario del sistema sin privilegios (Non-root user) por seguridad
+# Creación de usuario y grupo de sistema sin privilegios
 RUN addgroup -S appgroup && adduser -S appuser -G appgroup
 
-# nota: Usar la bandera --chown directamente en COPY 
-# para evitar la duplicación de capas en el sistema de archivos (Overlay2) que genera chown -R.
-COPY --chown=appuser:appgroup package*.json ./
-
-# Instalar dependencias de producción y limpiar caché de npm
-RUN npm ci --omit=dev && npm cache clean --force
-
-# Copiar el código compilado y el script de entrada asignando el usuario desde el origen
+# Copiar manifiestos y artefactos limpios generados en la etapa de build
+COPY --chown=appuser:appgroup package.json ./
+COPY --chown=appuser:appgroup --from=build /app/node_modules ./node_modules
 COPY --chown=appuser:appgroup --from=build /app/dist ./dist
-COPY --chown=appuser:appgroup scripts/docker-entrypoint.sh ./docker-entrypoint.sh
 
-RUN chmod +x ./docker-entrypoint.sh
+# Copiar entrypoint asegurando permisos de ejecución de forma atómica
+COPY --chown=appuser:appgroup --chmod=755 scripts/docker-entrypoint.sh ./docker-entrypoint.sh
 
-# Cambiar al usuario non-root para reducir la superficie de ataque
 USER appuser
-
 EXPOSE 3000
 
-# Incorporar un HEALTHCHECK nativo compatible con Alpine (usando wget)
 HEALTHCHECK --interval=30s --timeout=10s --retries=3 --start-period=40s \
   CMD wget -qO- http://127.0.0.1:3000/api/v2/health || exit 1
 

@@ -1,13 +1,13 @@
 import { INestApplication, ValidationPipe } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import request from 'supertest';
-import { MovieRepository } from '../../src/modules/movies/infrastructure/dao/movie.repository.js';
-import { MovieFunctionRepository } from '../../src/modules/movies/infrastructure/dao/movie-function.repository.js';
-import { GetMovieDetailUseCase } from '../../src/modules/movies/application/services/get-movie-detail.usecase.js';
-import { ListMovieFunctionsUseCase } from '../../src/modules/movies/application/services/list-movie-functions.usecase.js';
-import { ListMovieRecommendationsUseCase } from '../../src/modules/movies/application/services/list-movie-recommendations.usecase.js';
-import { MoviesController } from '../../src/modules/movies/ui/controllers/movies.controller.js';
-import { UserLocationRepository } from '../../src/modules/users/infrastructure/dao/user-location.repository.js';
+import { MovieDao } from '../../src/modules/movies/dao/movie.dao.js';
+import { MovieFunctionDao } from '../../src/modules/movies/dao/movie-function.dao.js';
+import { GetMovieDetailService } from '../../src/modules/movies/services/get-movie-detail.service.js';
+import { ListMovieFunctionsService } from '../../src/modules/movies/services/list-movie-functions.service.js';
+import { ListMovieRecommendationsService } from '../../src/modules/movies/services/list-movie-recommendations.service.js';
+import { MoviesController } from '../../src/modules/movies/controllers/movies.controller.js';
+import { UserLocationDao } from '../../src/modules/users/dao/user-location.dao.js';
 
 const movieId = '55555555-5555-4555-a555-555555555555';
 const otherMovieId = '66666666-6666-4666-a666-666666666666';
@@ -47,17 +47,17 @@ describe('Movie detail (e2e happy path)', () => {
     const moduleRef: TestingModule = await Test.createTestingModule({
       controllers: [MoviesController],
       providers: [
-        GetMovieDetailUseCase,
-        ListMovieFunctionsUseCase,
-        ListMovieRecommendationsUseCase,
-        { provide: MovieRepository, useValue: {
+        GetMovieDetailService,
+        ListMovieFunctionsService,
+        ListMovieRecommendationsService,
+        { provide: MovieDao, useValue: {
           findDetailById: async () => movie,
           findActiveById: async () => movie,
           findActiveWithGenresById: async () => movie,
           findActiveWithGenres: async () => [movie, otherMovie],
         } },
         {
-          provide: MovieFunctionRepository,
+          provide: MovieFunctionDao,
           useValue: {
             findFutureByMovieAndCity: async () => [
               {
@@ -74,7 +74,7 @@ describe('Movie detail (e2e happy path)', () => {
             ],
           },
         },
-        { provide: UserLocationRepository, useValue: { findByUserId: async () => ({ userId, cityId }) } },
+        { provide: UserLocationDao, useValue: { findByUserId: async () => ({ userId, cityId }) } },
       ],
     }).compile();
 

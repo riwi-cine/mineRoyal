@@ -1,8 +1,8 @@
 import { DataSource } from 'typeorm';
-import { Cinema } from '../../../modules/locations/domain/entities/cinema.entity.js';
-import { City } from '../../../modules/locations/domain/entities/city.entity.js';
-import { Country } from '../../../modules/locations/domain/entities/country.entity.js';
-import { Department } from '../../../modules/locations/domain/entities/department.entity.js';
+import { Cinema } from '../../../modules/locations/entities/cinema.entity.js';
+import { City } from '../../../modules/locations/entities/city.entity.js';
+import { Country } from '../../../modules/locations/entities/country.entity.js';
+import { Department } from '../../../modules/locations/entities/department.entity.js';
 
 /** Seeds a minimal country/department/city/cinema hierarchy for local development and tests. */
 export async function seedLocations(dataSource: DataSource): Promise<void> {

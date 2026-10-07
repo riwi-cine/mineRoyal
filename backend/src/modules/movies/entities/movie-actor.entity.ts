@@ -1,0 +1,23 @@
+import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn, Relation } from 'typeorm';
+import { Actor } from './actor.entity.js';
+import type { Movie } from './movie.entity.js';
+
+@Entity('movie_actors')
+export class MovieActor {
+  @PrimaryGeneratedColumn('uuid')
+  id!: string;
+
+  @Column({ name: 'movie_id', type: 'uuid' })
+  movieId!: string;
+
+  @Column({ name: 'actor_id', type: 'uuid' })
+  actorId!: string;
+
+  @ManyToOne('Movie', (movie: Movie) => movie.movieActors, { onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'movie_id' })
+  movie?: Relation<Movie>;
+
+  @ManyToOne(() => Actor, (actor) => actor.movieActors, { onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'actor_id' })
+  actor?: Relation<Actor>;
+}

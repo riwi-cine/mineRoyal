@@ -1,17 +1,17 @@
 import { DataSource, FindOptionsWhere, MoreThan, Repository } from 'typeorm';
-import { Actor } from '../../../modules/movies/domain/entities/actor.entity.js';
-import { Cinema } from '../../../modules/locations/domain/entities/cinema.entity.js';
-import { Director } from '../../../modules/movies/domain/entities/director.entity.js';
-import { Format } from '../../../modules/movies/domain/entities/format.entity.js';
-import { Genre } from '../../../modules/movies/domain/entities/genre.entity.js';
-import { Language } from '../../../modules/movies/domain/entities/language.entity.js';
-import { Movie } from '../../../modules/movies/domain/entities/movie.entity.js';
-import { MovieActor } from '../../../modules/movies/domain/entities/movie-actor.entity.js';
-import { MovieFormat } from '../../../modules/movies/domain/entities/movie-format.entity.js';
-import { MovieFunction } from '../../../modules/movies/domain/entities/movie-function.entity.js';
-import { MovieGenre } from '../../../modules/movies/domain/entities/movie-genre.entity.js';
-import { MovieLanguage } from '../../../modules/movies/domain/entities/movie-language.entity.js';
-import { Room } from '../../../modules/movies/domain/entities/room.entity.js';
+import { Actor } from '../../../modules/movies/entities/actor.entity.js';
+import { Cinema } from '../../../modules/locations/entities/cinema.entity.js';
+import { Director } from '../../../modules/movies/entities/director.entity.js';
+import { Format } from '../../../modules/movies/entities/format.entity.js';
+import { Genre } from '../../../modules/movies/entities/genre.entity.js';
+import { Language } from '../../../modules/movies/entities/language.entity.js';
+import { Movie } from '../../../modules/movies/entities/movie.entity.js';
+import { MovieActor } from '../../../modules/movies/entities/movie-actor.entity.js';
+import { MovieFormat } from '../../../modules/movies/entities/movie-format.entity.js';
+import { MovieFunction } from '../../../modules/movies/entities/movie-function.entity.js';
+import { MovieGenre } from '../../../modules/movies/entities/movie-genre.entity.js';
+import { MovieLanguage } from '../../../modules/movies/entities/movie-language.entity.js';
+import { Room } from '../../../modules/movies/entities/room.entity.js';
 
 const TRAILERS = {
   oppenheimer: 'https://www.youtube.com/embed/d9MyW72ELq0',
