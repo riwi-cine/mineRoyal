@@ -13,6 +13,6 @@ import { UsersController } from './controllers/users.controller.js';
   imports: [TypeOrmModule.forFeature([User, UserLocation]), LocationsModule],
   controllers: [UsersController],
   providers: [UserDao, UserLocationDao, UsersService, SetUserLocationService],
-  exports: [UserLocationDao],
+  exports: [UserLocationDao, UserDao, UsersService],
 })
 export class UsersModule {}

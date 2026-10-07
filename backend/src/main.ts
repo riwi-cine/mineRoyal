@@ -1,11 +1,13 @@
 import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { patchNestJsSwagger, ZodValidationPipe } from 'nestjs-zod';
+import cookieParser from 'cookie-parser';
 import { AppModule } from './app.module.js';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
+  app.use(cookieParser());
   app.enableShutdownHooks; // GracefulShutdown
   app.useGlobalPipes(new ZodValidationPipe());
   app.setGlobalPrefix('api/v2');
