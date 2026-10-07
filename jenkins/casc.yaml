@@ -1,0 +1,33 @@
+jenkins:
+  systemMessage: "MineRoyal CI/CD Automated Server (JCasC Managed)"
+  numExecutors: 0
+  mode: EXCLUSIVE
+  scmCheckoutRetryCount: 3
+  clouds:
+    - docker:
+        name: "docker-agents"
+        dockerApi:
+          dockerHost:
+            uri: "tcp://docker-dind:2375"
+        templates:
+          - name: "jenkins-ephemeral-agent"
+            labelString: "docker-agent"
+            dockerTemplateBase:
+              image: "jenkins/inbound-agent:alpine"
+              pullCredentialsId: ""
+            remoteFs: "/home/jenkins/agent"
+            connector:
+              attach: {}
+            instanceCapStr: "5"
+            retentionStrategy:
+              idleMinutes: 10
+
+security:
+  queueItemAuthenticator:
+    authenticators:
+      - global:
+          strategy: triggeringUsersAuthorizationStrategy
+
+unclassified:
+  location:
+    url: "http://localhost:8080/"
