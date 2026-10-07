@@ -1,0 +1,1 @@
+node backend/.husky/validate-commit-msg.cjs "$1"
