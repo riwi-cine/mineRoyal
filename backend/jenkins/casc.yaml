@@ -3,6 +3,15 @@ jenkins:
   numExecutors: 0
   mode: EXCLUSIVE
   scmCheckoutRetryCount: 3
+  securityRealm:
+    local:
+      allowsSignup: false
+      users:
+        - id: "${JENKINS_ADMIN_ID:-admin}"
+          password: "${JENKINS_ADMIN_PASSWORD:-admin123}"
+  authorizationStrategy:
+    loggedInUsersCanDoAnything:
+      allowAnonymousRead: false
   clouds:
     - docker:
         name: "docker-agents"
@@ -21,12 +30,6 @@ jenkins:
             instanceCapStr: "5"
             retentionStrategy:
               idleMinutes: 10
-
-security:
-  queueItemAuthenticator:
-    authenticators:
-      - global:
-          strategy: triggeringUsersAuthorizationStrategy
 
 unclassified:
   location:

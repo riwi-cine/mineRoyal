@@ -64,6 +64,46 @@ services:
       timeout: 5s
       retries: 5
 
+  jenkins:
+    build:
+      context: ./jenkins
+      dockerfile: Dockerfile
+    image: mineroyal-jenkins:lts
+    container_name: jenkins-ci
+    user: "1000:1000"
+    ports:
+      - "8080:8080"
+      - "50000:50000"
+    volumes:
+      - jenkins_home:/var/jenkins_home
+      - ./jenkins/casc.yaml:/var/jenkins_home/casc.yaml:ro
+    environment:
+      - JAVA_OPTS=-Djenkins.install.runSetupWizard=false -Dhudson.plugins.git.GitSCM.GIT_SHALLOW_CLONE=true
+      - CASC_JENKINS_CONFIG=/var/jenkins_home/casc.yaml
+      - DOCKER_HOST=tcp://docker-dind:2375
+      - JENKINS_ADMIN_ID=${JENKINS_ADMIN_ID:-admin}
+      - JENKINS_ADMIN_PASSWORD=${JENKINS_ADMIN_PASSWORD:-admin123}
+    restart: unless-stopped
+    depends_on:
+      - docker-dind
+    networks:
+      - multicine-net
+
+  docker-dind:
+    image: docker:27-dind
+    container_name: jenkins-docker-dind
+    privileged: true
+    environment:
+      - DOCKER_TLS_CERTDIR=""
+    volumes:
+      - jenkins_docker_certs:/certs/client
+      - jenkins_docker_data:/var/lib/docker
+    expose:
+      - "2375"
+    networks:
+      - multicine-net
+    restart: unless-stopped
+
 networks:
   multicine-net:
     driver: bridge
@@ -71,3 +111,6 @@ networks:
 volumes:
   pgdata:
   backend_node_modules:
+  jenkins_home:
+  jenkins_docker_certs:
+  jenkins_docker_data:

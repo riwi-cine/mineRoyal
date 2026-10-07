@@ -35,10 +35,10 @@ Pipeline CI/CD completo: Detecta cambios → Checkout → Instalación → Build
 ## 📦 Paso 1: Levantar Jenkins con Docker
 
 ```bash
-cd jenkins/
+cd backend/
 docker compose up -d
 
-# Ver password inicial (una sola vez):
+# Ver password inicial (una sola vez si se solicita):
 docker exec jenkins-ci cat /var/jenkins_home/secrets/initialAdminPassword
 ```
 

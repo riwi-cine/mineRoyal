@@ -8,7 +8,7 @@ nodejs
 credentials-binding
 github
 github-branch-source
-workspace-cleanup
+ws-cleanup
 timestamper
 warnings-ng
 ssh
