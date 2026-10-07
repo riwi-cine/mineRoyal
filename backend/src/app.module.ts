@@ -4,9 +4,11 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppController } from './app.controller.js';
 import { AppService } from './app.service.js';
 import { typeOrmConfig } from './config/database.config.js';
+import { CartModule } from './modules/cart/cart.module.js';
 import { FunctionsModule } from './modules/functions/functions.module.js';
 import { LocationsModule } from './modules/locations/locations.module.js';
 import { MoviesModule } from './modules/movies/movies.module.js';
+import { PromotionsModule } from './modules/promotions/promotions.module.js';
 import { SeatModule } from './modules/seats/seat.module.js';
 import { UsersModule } from './modules/users/users.module.js';
 import { HealthModule } from './infrastructure/web/health/health.module.js';
@@ -24,6 +26,8 @@ import { HealthModule } from './infrastructure/web/health/health.module.js';
     UsersModule,
     SeatModule,
     FunctionsModule,
+    PromotionsModule,
+    CartModule,
     HealthModule,
   ],
   controllers: [AppController],

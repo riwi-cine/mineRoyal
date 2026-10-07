@@ -1,3 +1,4 @@
+// removed EntityTarget import
 import {
   Column,
   CreateDateColumn,
@@ -5,10 +6,11 @@ import {
   JoinColumn,
   ManyToOne,
   PrimaryGeneratedColumn,
+  Relation,
   UpdateDateColumn,
 } from 'typeorm';
 import { z } from 'zod';
-import { City } from './city.entity.js';
+import type { City } from './city.entity.js';
 
 @Entity('cinemas')
 export class Cinema {
@@ -21,9 +23,9 @@ export class Cinema {
   @Column({ name: 'city_id', type: 'uuid' })
   cityId!: string;
 
-  @ManyToOne(() => City, (city) => city.cinemas, { onDelete: 'CASCADE' })
+  @ManyToOne('City', (city) => (city as any).cinemas, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'city_id' })
-  city?: City;
+  city?: Relation<City>;
 
   @Column({ name: 'is_active', type: 'boolean', default: true })
   isActive!: boolean;

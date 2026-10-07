@@ -6,10 +6,12 @@ import {
   ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
+  Relation,
   UpdateDateColumn,
 } from 'typeorm';
 import { z } from 'zod';
-import { Cinema } from './cinema.entity.js';
+// EntityTarget import removed
+import type { Cinema } from './cinema.entity.js';
 import { Department } from './department.entity.js';
 
 @Entity('cities')
@@ -25,12 +27,12 @@ export class City {
 
   @ManyToOne(() => Department, (department) => department.cities, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'department_id' })
-  department?: Department;
+  department?: Relation<Department>;
 
   @Column({ name: 'is_active', type: 'boolean', default: true })
   isActive!: boolean;
 
-  @OneToMany(() => Cinema, (cinema) => cinema.city)
+  @OneToMany('Cinema', (cinema) => (cinema as any).city)
   cinemas?: Cinema[];
 
   @CreateDateColumn({ name: 'created_at' })
