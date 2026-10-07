@@ -6,6 +6,7 @@ import {
   ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
+  Relation,
   UpdateDateColumn,
 } from 'typeorm';
 import { z } from 'zod';
@@ -56,12 +57,12 @@ export class Movie {
 
   @ManyToOne(() => Director, (director) => director.movies, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'director_id' })
-  director?: Director;
+  director?: Relation<Director>;
 
   @OneToMany(() => MovieGenre, (movieGenre) => movieGenre.movie)
   movieGenres?: MovieGenre[];
 
-  @OneToMany("MovieActor", (movieActor: MovieActor) => movieActor.movie)
+  @OneToMany('MovieActor', (movieActor: MovieActor) => movieActor.movie)
   movieActors?: MovieActor[];
 
   @OneToMany(() => MovieLanguage, (movieLanguage) => movieLanguage.movie)

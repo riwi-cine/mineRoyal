@@ -5,6 +5,7 @@ import {
   JoinColumn,
   ManyToOne,
   PrimaryGeneratedColumn,
+  Relation,
   UpdateDateColumn,
 } from 'typeorm';
 import { z } from 'zod';
@@ -26,21 +27,21 @@ export class UserLocation {
 
   @ManyToOne(() => Country, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'country_id' })
-  country?: Country;
+  country?: Relation<Country>;
 
   @Column({ name: 'department_id', type: 'uuid' })
   departmentId!: string;
 
   @ManyToOne(() => Department, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'department_id' })
-  department?: Department;
+  department?: Relation<Department>;
 
   @Column({ name: 'city_id', type: 'uuid' })
   cityId!: string;
 
   @ManyToOne(() => City, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'city_id' })
-  city?: City;
+  city?: Relation<City>;
 
   @CreateDateColumn({ name: 'created_at' })
   createdAt!: Date;

@@ -1,7 +1,7 @@
 import type { ConfigService } from '@nestjs/config';
 import type { TypeOrmModuleOptions } from '@nestjs/typeorm';
-import { dirname, join } from 'path';
-import { fileURLToPath } from 'url';
+import { dirname, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { SnakeCaseNamingStrategy } from '../infrastructure/database/naming/snake-case.naming-strategy.js';
 
 const __filename = fileURLToPath(import.meta.url);

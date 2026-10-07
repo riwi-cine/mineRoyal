@@ -1,4 +1,13 @@
-import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn, Unique } from 'typeorm';
+import {
+  Column,
+  CreateDateColumn,
+  Entity,
+  JoinColumn,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+  Relation,
+  Unique,
+} from 'typeorm';
 import { z } from 'zod';
 import { Seats } from './seat.entity.js';
 
@@ -19,7 +28,7 @@ export class SeatLock {
 
   @ManyToOne(() => Seats, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'seat_id' })
-  seat?: Seats;
+  seat?: Relation<Seats>;
 
   @Column({ name: 'expires_at', type: 'timestamptz' })
   expiresAt!: Date;

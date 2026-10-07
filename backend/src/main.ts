@@ -6,7 +6,7 @@ import { AppModule } from './app.module.js';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
-  app.enableShutdownHooks; // GracefulShutdown
+  app.enableShutdownHooks(); // GracefulShutdown
   app.useGlobalPipes(new ZodValidationPipe());
   app.setGlobalPrefix('api/v2');
   /**
