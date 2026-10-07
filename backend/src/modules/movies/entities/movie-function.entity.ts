@@ -25,7 +25,7 @@ export class MovieFunction {
   @Column({ name: 'movie_id', type: 'uuid' })
   movieId!: string;
 
-  @ManyToOne("Movie", (movie: Movie) => movie.movieFunctions, { onDelete: 'CASCADE' })
+  @ManyToOne('Movie', (movie: Movie) => movie.movieFunctions, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'movie_id' })
   movie?: Movie;
 

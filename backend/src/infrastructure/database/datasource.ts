@@ -1,7 +1,7 @@
 import * as typeorm from 'typeorm';
 import { dirname, join } from 'path';
 import { fileURLToPath } from 'url';
-import { SnakeCaseNamingStrategy } from './naming/snake-case.naming-strategy';
+import { SnakeCaseNamingStrategy } from './naming/snake-case.naming-strategy.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);

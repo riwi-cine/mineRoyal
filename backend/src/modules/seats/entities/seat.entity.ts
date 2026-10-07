@@ -29,7 +29,7 @@ export class Seats {
   @Column({ name: 'room_id', type: 'uuid' })
   roomId!: string;
 
-  @ManyToOne("Room", (room: Room) => room.seats, { onDelete: 'CASCADE' })
+  @ManyToOne('Room', (room: Room) => room.seats, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'room_id' })
   room?: Room;
 

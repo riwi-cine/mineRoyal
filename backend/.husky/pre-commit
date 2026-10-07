@@ -1,0 +1,10 @@
+cd backend
+
+echo "pre-commit: lint"
+pnpm lint || exit 1
+
+echo "pre-commit: type-check"
+pnpm type-check || exit 1
+
+echo "pre-commit: test"
+pnpm test || exit 1
