@@ -93,8 +93,9 @@ services:
     image: docker:27-dind
     container_name: jenkins-docker-dind
     privileged: true
+    command: ["dockerd", "--host=unix:///var/run/docker.sock", "--host=tcp://0.0.0.0:2375", "--tls=false"]
     environment:
-      - DOCKER_TLS_CERTDIR=""
+      DOCKER_TLS_CERTDIR: ""
     volumes:
       - jenkins_docker_certs:/certs/client
       - jenkins_docker_data:/var/lib/docker
