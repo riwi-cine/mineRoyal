@@ -13,9 +13,10 @@ async function main(): Promise<void> {
   await dataSource.destroy();
 }
 
-main()
-  .then(() => console.log('Seeders ejecutados correctamente.'))
-  .catch((error: unknown) => {
-    console.error('Error ejecutando los seeders:', error);
-    process.exitCode = 1;
-  });
+try {
+  await main();
+  console.log('Seeders ejecutados correctamente.');
+} catch (error: unknown) {
+  console.error('Error ejecutando los seeders:', error);
+  process.exitCode = 1;
+}

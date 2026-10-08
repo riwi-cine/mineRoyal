@@ -13,48 +13,52 @@ export class ConvertCartAndMembershipUserIdsToInteger1762000000000 implements Mi
 
   private readonly tables = ['carts', 'memberships'] as const;
 
-  public async up(queryRunner: QueryRunner): Promise<void> {
-    for (const tableName of this.tables) {
-      const table = await queryRunner.getTable(tableName);
-      const columnType = table?.findColumnByName('user_id')?.type;
+  private async upgradeTable(queryRunner: QueryRunner, tableName: string): Promise<void> {
+    const table = await queryRunner.getTable(tableName);
+    const columnType = table?.findColumnByName('user_id')?.type;
 
-      if (!table || !columnType) {
-        throw new Error(`No se encontró la columna user_id en la tabla ${tableName}.`);
-      }
-      if (columnType === 'integer') continue;
-      if (columnType !== 'uuid') {
-        throw new Error(`Tipo de user_id no soportado en ${tableName}: ${columnType}.`);
-      }
-
-      const [{ count }] = (await queryRunner.query(`SELECT COUNT(*)::int AS count FROM "${tableName}"`)) as Array<{
-        count: number;
-      }>;
-      if (count > 0) {
-        throw new Error(
-          `La tabla ${tableName} tiene ${count} registros con user_id UUID que no pueden convertirse a INTEGER. ` +
-            'Elimínelos o migrelos manualmente antes de ejecutar esta migración.',
-        );
-      }
-
-      await queryRunner.query(`ALTER TABLE "${tableName}" ALTER COLUMN "user_id" TYPE integer USING NULL`);
+    if (!table || !columnType) {
+      throw new Error(`No se encontró la columna user_id en la tabla ${tableName}.`);
     }
+    if (columnType === 'integer') return;
+    if (columnType !== 'uuid') {
+      throw new Error(`Tipo de user_id no soportado en ${tableName}: ${columnType}.`);
+    }
+
+    const [{ count }] = (await queryRunner.query(`SELECT COUNT(*)::int AS count FROM "${tableName}"`)) as Array<{
+      count: number;
+    }>;
+    if (count > 0) {
+      throw new Error(
+        `La tabla ${tableName} tiene ${count} registros con user_id UUID que no pueden convertirse a INTEGER. ` +
+          'Elimínelos o migrelos manualmente antes de ejecutar esta migración.',
+      );
+    }
+
+    await queryRunner.query(`ALTER TABLE "${tableName}" ALTER COLUMN "user_id" TYPE integer USING NULL`);
+  }
+
+  private async downgradeTable(queryRunner: QueryRunner, tableName: string): Promise<void> {
+    const table = await queryRunner.getTable(tableName);
+    if (table?.findColumnByName('user_id')?.type !== 'integer') return;
+
+    const [{ count }] = (await queryRunner.query(`SELECT COUNT(*)::int AS count FROM "${tableName}"`)) as Array<{
+      count: number;
+    }>;
+    if (count > 0) {
+      throw new Error(
+        `La tabla ${tableName} tiene registros; no se puede revertir user_id a UUID sin pérdida de datos.`,
+      );
+    }
+
+    await queryRunner.query(`ALTER TABLE "${tableName}" ALTER COLUMN "user_id" TYPE uuid USING NULL`);
+  }
+
+  public async up(queryRunner: QueryRunner): Promise<void> {
+    await Promise.all(this.tables.map((table) => this.upgradeTable(queryRunner, table)));
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
-    for (const tableName of this.tables) {
-      const table = await queryRunner.getTable(tableName);
-      if (table?.findColumnByName('user_id')?.type !== 'integer') continue;
-
-      const [{ count }] = (await queryRunner.query(`SELECT COUNT(*)::int AS count FROM "${tableName}"`)) as Array<{
-        count: number;
-      }>;
-      if (count > 0) {
-        throw new Error(
-          `La tabla ${tableName} tiene registros; no se puede revertir user_id a UUID sin pérdida de datos.`,
-        );
-      }
-
-      await queryRunner.query(`ALTER TABLE "${tableName}" ALTER COLUMN "user_id" TYPE uuid USING NULL`);
-    }
+    await Promise.all(this.tables.map((table) => this.downgradeTable(queryRunner, table)));
   }
 }

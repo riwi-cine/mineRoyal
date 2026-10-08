@@ -147,20 +147,8 @@ export class SeatService {
       throw new UnprocessableEntityException('La función no tiene una sala asociada.');
     }
 
-    // Seats must exist and belong to the function's room.
     const roomSeats = await this.seatDao.findSeatsByRoom(cineFunction.room.id);
-    const roomSeatById = new Map<string, Seats>(roomSeats.map((seat) => [seat.id, seat]));
-
-    const notInRoom = seatIds.filter((id) => !roomSeatById.has(id));
-    if (notInRoom.length > 0) {
-      throw new BadRequestException(`Las sillas [${notInRoom.join(', ')}] no pertenecen a la sala de la función.`);
-    }
-
-    // RN-041 / RN-042: disabled seats cannot be selected.
-    const disabled = seatIds.filter((id) => toCategory(roomSeatById.get(id)?.seatType) === 'DISABLED');
-    if (disabled.length > 0) {
-      throw new BadRequestException(`Las sillas [${disabled.join(', ')}] no están habilitadas para la venta.`);
-    }
+    this.validateSeatSelection(roomSeats, seatIds);
 
     // RN-040: release expired locks on these seats first.
     await this.seatDao.deleteExpiredLocks(functionId, seatIds);
@@ -170,26 +158,12 @@ export class SeatService {
     const activeLocks = await this.seatDao.findActiveLocks(functionId, seatIds);
     const lockBySeatId = new Map<string, SeatLock>(activeLocks.map((lock) => [lock.seatId, lock]));
 
-    const rejectedSeatIds: string[] = [];
-    const seatsOwnedByCart: string[] = [];
-    const seatsToCreate: string[] = [];
-
-    for (const seatId of seatIds) {
-      if (soldSeatIds.has(seatId)) {
-        rejectedSeatIds.push(seatId);
-        continue;
-      }
-      const lock = lockBySeatId.get(seatId);
-      if (lock && lock.cartId !== cartId) {
-        rejectedSeatIds.push(seatId);
-        continue;
-      }
-      if (lock) {
-        seatsOwnedByCart.push(seatId);
-      } else {
-        seatsToCreate.push(seatId);
-      }
-    }
+    const { rejectedSeatIds, seatsOwnedByCart, seatsToCreate } = this.classifySeatsForLocking(
+      seatIds,
+      cartId,
+      soldSeatIds,
+      lockBySeatId,
+    );
 
     const expiresAt = new Date(Date.now() + LOCK_DURATION_MINUTES * 60 * 1000);
 
@@ -221,10 +195,55 @@ export class SeatService {
     return {
       functionId,
       cartId,
-      lockedSeatIds: [...lockedSeatIds].sort(),
-      rejectedSeatIds: [...rejectedSeatIds].sort(),
+      lockedSeatIds: [...lockedSeatIds].sort((a, b) => a.localeCompare(b)),
+      rejectedSeatIds: [...rejectedSeatIds].sort((a, b) => a.localeCompare(b)),
       expiresAt,
     };
+  }
+
+  private validateSeatSelection(roomSeats: Seats[], seatIds: string[]): void {
+    const roomSeatById = new Map<string, Seats>(roomSeats.map((seat) => [seat.id, seat]));
+
+    const notInRoom = seatIds.filter((id) => !roomSeatById.has(id));
+    if (notInRoom.length > 0) {
+      throw new BadRequestException(`Las sillas [${notInRoom.join(', ')}] no pertenecen a la sala de la función.`);
+    }
+
+    // RN-041 / RN-042: disabled seats cannot be selected.
+    const disabled = seatIds.filter((id) => toCategory(roomSeatById.get(id)?.seatType) === 'DISABLED');
+    if (disabled.length > 0) {
+      throw new BadRequestException(`Las sillas [${disabled.join(', ')}] no están habilitadas para la venta.`);
+    }
+  }
+
+  private classifySeatsForLocking(
+    seatIds: string[],
+    cartId: string,
+    soldSeatIds: Set<string>,
+    lockBySeatId: Map<string, SeatLock>,
+  ): { rejectedSeatIds: string[]; seatsOwnedByCart: string[]; seatsToCreate: string[] } {
+    const rejectedSeatIds: string[] = [];
+    const seatsOwnedByCart: string[] = [];
+    const seatsToCreate: string[] = [];
+
+    for (const seatId of seatIds) {
+      if (soldSeatIds.has(seatId)) {
+        rejectedSeatIds.push(seatId);
+        continue;
+      }
+      const lock = lockBySeatId.get(seatId);
+      if (lock && lock.cartId !== cartId) {
+        rejectedSeatIds.push(seatId);
+        continue;
+      }
+      if (lock) {
+        seatsOwnedByCart.push(seatId);
+      } else {
+        seatsToCreate.push(seatId);
+      }
+    }
+
+    return { rejectedSeatIds, seatsOwnedByCart, seatsToCreate };
   }
 
   /**

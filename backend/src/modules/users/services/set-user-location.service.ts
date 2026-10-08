@@ -30,12 +30,12 @@ export class SetUserLocationService {
    */
   async execute(dto: SetUserLocationDto): Promise<UserLocationResponseDto> {
     const country = await this.countryDao.findById(dto.countryId);
-    if (!country || !country.isActive) {
+    if (!country?.isActive) {
       throw new NotFoundException('País no encontrado.');
     }
 
     const department = await this.departmentDao.findById(dto.departmentId);
-    if (!department || !department.isActive) {
+    if (!department?.isActive) {
       throw new NotFoundException('Departamento no encontrado.');
     }
     if (department.countryId !== country.id) {

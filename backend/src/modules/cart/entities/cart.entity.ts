@@ -64,4 +64,3 @@ export const createCartSchema = cartInsertSchema;
 // Tipos inferidos a partir de los esquemas de Zod
 export type CartInput = z.infer<typeof cartSchema>;
 export type CartInsertInput = z.infer<typeof cartInsertSchema>;
-export type CreateCartInput = CartInsertInput;

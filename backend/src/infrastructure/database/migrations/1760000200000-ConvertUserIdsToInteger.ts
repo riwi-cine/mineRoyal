@@ -16,9 +16,10 @@ export class ConvertUserIdsToInteger1760000200000 implements MigrationInterface 
       throw new Error(`Tipo de ID de usuario no soportado: ${userIdType}.`);
     }
 
-    for (const foreignKey of userLocationsTable.foreignKeys.filter((key) => key.columnNames.includes('user_id'))) {
-      await queryRunner.dropForeignKey(userLocationsTable, foreignKey);
-    }
+    const matchingForeignKeys = userLocationsTable.foreignKeys.filter((key) => key.columnNames.includes('user_id'));
+    await Promise.all(
+      matchingForeignKeys.map((foreignKey) => queryRunner.dropForeignKey(userLocationsTable, foreignKey)),
+    );
 
     await queryRunner.query(`
       ALTER TABLE "users"

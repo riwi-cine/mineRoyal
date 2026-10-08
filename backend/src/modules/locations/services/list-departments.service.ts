@@ -22,7 +22,7 @@ export class ListDepartmentsService {
    */
   async execute(countryId: string): Promise<DepartmentResponseDto[]> {
     const country = await this.countryDao.findById(countryId);
-    if (!country || !country.isActive) {
+    if (!country?.isActive) {
       throw new NotFoundException('País no encontrado.');
     }
 

@@ -63,7 +63,9 @@ async function bootstrap() {
   console.log(`Server is running on: http://localhost:${port}`);
   console.log(`Swagger documentation: http://localhost:${port}/docs`);
 }
-bootstrap().catch((error: unknown) => {
+try {
+  await bootstrap();
+} catch (error: unknown) {
   console.error('Error al iniciar la aplicación:', error);
   process.exitCode = 1;
-});
+}
