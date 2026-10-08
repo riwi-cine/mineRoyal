@@ -9,7 +9,7 @@ export class Actor {
   @Column({ type: 'varchar', length: 120 })
   name!: string;
 
-  @OneToMany("MovieActor", (movieActor: MovieActor) => movieActor.actor)
+  @OneToMany('MovieActor', (movieActor: MovieActor) => movieActor.actor)
   movieActors?: MovieActor[];
 
   @CreateDateColumn({ name: 'created_at' })

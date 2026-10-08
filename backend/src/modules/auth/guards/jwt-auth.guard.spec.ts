@@ -3,6 +3,8 @@ import type { Request } from 'express';
 import type { AuthService } from '../services/auth.service.js';
 import { JwtAuthGuard } from './jwt-auth.guard.js';
 
+vi.mock('bcrypt', () => ({ compare: vi.fn(), hash: vi.fn() }));
+
 describe('JwtAuthGuard', () => {
   const buildContext = (authorization?: string) => {
     const request = { headers: { authorization } } as Request & {

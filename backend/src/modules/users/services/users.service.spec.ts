@@ -7,7 +7,7 @@ vi.mock('bcrypt', () => ({ hash: vi.fn().mockResolvedValue('hashed-password') })
 
 describe('UsersService', () => {
   const activeUser = {
-    id: 'user-1',
+    id: 1,
     name: 'Ana Pérez',
     email: 'ana@example.com',
     passwordHash: 'stored-hash',
@@ -66,7 +66,7 @@ describe('UsersService', () => {
     const { service, userDao } = buildService();
     vi.mocked(userDao.findById).mockResolvedValue(activeUser);
 
-    await service.update('user-1', { name: 'Ana María', password: 'new-password' });
+    await service.update(1, { name: 'Ana María', password: 'new-password' });
 
     expect(userDao.update).toHaveBeenCalledWith(activeUser, {
       name: 'Ana María',
@@ -80,9 +80,9 @@ describe('UsersService', () => {
       .mockResolvedValueOnce(activeUser)
       .mockResolvedValueOnce({ ...activeUser, deletedAt: new Date() });
 
-    const result = await service.remove('user-1');
+    const result = await service.remove(1);
 
-    expect(userDao.softDelete).toHaveBeenCalledWith('user-1');
+    expect(userDao.softDelete).toHaveBeenCalledWith(1);
     expect(result.deletedAt).toBeInstanceOf(Date);
   });
 
@@ -92,17 +92,17 @@ describe('UsersService', () => {
       .mockResolvedValueOnce({ ...activeUser, deletedAt: new Date() })
       .mockResolvedValueOnce(activeUser);
 
-    await expect(service.restore('user-1')).resolves.toMatchObject({ id: 'user-1', deletedAt: null });
-    expect(userDao.restore).toHaveBeenCalledWith('user-1');
+    await expect(service.restore(1)).resolves.toMatchObject({ id: 1, deletedAt: null });
+    expect(userDao.restore).toHaveBeenCalledWith(1);
 
     vi.mocked(userDao.findById).mockResolvedValueOnce(activeUser);
-    await expect(service.restore('user-1')).rejects.toThrow(BadRequestException);
+    await expect(service.restore(1)).rejects.toThrow(BadRequestException);
   });
 
   it('throws not found when an active user does not exist', async () => {
     const { service, userDao } = buildService();
     vi.mocked(userDao.findById).mockResolvedValue(null);
 
-    await expect(service.findOne('missing')).rejects.toThrow(NotFoundException);
+    await expect(service.findOne(999)).rejects.toThrow(NotFoundException);
   });
 });

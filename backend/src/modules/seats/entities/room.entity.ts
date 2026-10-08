@@ -6,6 +6,7 @@ import {
   ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
+  Relation,
   UpdateDateColumn,
 } from 'typeorm';
 import { z } from 'zod';
@@ -23,14 +24,14 @@ export class Room {
 
   @ManyToOne(() => Cinema, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'cinema_id' })
-  cinema?: Cinema;
+  cinema?: Relation<Cinema>;
 
   @Column({ name: 'room_type_id', type: 'uuid' })
   roomTypeId!: string;
 
   @ManyToOne(() => RoomType, (roomType) => roomType.rooms, { onDelete: 'RESTRICT' })
   @JoinColumn({ name: 'room_type_id' })
-  roomType?: RoomType;
+  roomType?: Relation<RoomType>;
 
   @Column({ type: 'varchar', length: 50 })
   name!: string;

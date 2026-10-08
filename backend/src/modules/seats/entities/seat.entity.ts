@@ -5,6 +5,7 @@ import {
   JoinColumn,
   ManyToOne,
   PrimaryGeneratedColumn,
+  Relation,
   Unique,
   UpdateDateColumn,
 } from 'typeorm';
@@ -29,9 +30,9 @@ export class Seats {
   @Column({ name: 'room_id', type: 'uuid' })
   roomId!: string;
 
-  @ManyToOne("Room", (room: Room) => room.seats, { onDelete: 'CASCADE' })
+  @ManyToOne('Room', (room: Room) => room.seats, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'room_id' })
-  room?: Room;
+  room?: Relation<Room>;
 
   @Column({ type: 'varchar', length: 5 })
   row!: string;

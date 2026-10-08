@@ -25,6 +25,92 @@
 
 [Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
 
+## Flujo de trabajo Git
+
+### Estrategia de branches
+
+El repositorio utiliza un flujo simple basado en `main` como rama desplegable:
+
+```
+main
+ │
+ ├── feature/US-101-login
+ ├── feature/US-102-customers
+ └── feature/US-103-products
+```
+
+- Toda funcionalidad se desarrolla en una rama `feature/US-XXX-descripcion-corta`.
+- Al finalizar, se abre un Pull Request hacia `main`.
+- `main` es la única rama que se considera desplegable.
+
+### Convención de commits
+
+Cada commit debe estar relacionado con una historia de usuario y seguir el formato:
+
+```
+[US-XXX] tipo: descripción
+```
+
+Tipos permitidos: `feat`, `fix`, `test`, `refactor`, `docs`, `chore`.
+
+Ejemplos válidos:
+
+```
+[US-101] feat: agregar autenticación de usuarios
+[US-102] fix: corregir validación de clientes
+[US-103] test: agregar pruebas para customers service
+[US-104] refactor: simplificar customer repository
+```
+
+Ejemplo inválido:
+
+```
+arreglo login
+```
+
+### Git Hooks (Husky)
+
+El proyecto usa [Husky](https://typicode.github.io/husky/) para ejecutar validaciones locales antes de aceptar un commit. Como el repositorio Git vive en la raíz (`mineRoyal/`) pero el `package.json` está en `backend/`, los hooks se instalaron en `backend/.husky` y `core.hooksPath` apunta a esa ruta (configurado automáticamente por el script `prepare` al correr `pnpm install`).
+
+```
+git commit
+ │
+ ▼
+pre-commit (backend/.husky/pre-commit)
+ │
+ ├── pnpm lint
+ ├── pnpm type-check
+ └── pnpm test
+ │
+ ▼
+commit-msg (backend/.husky/commit-msg)
+ │
+ ▼
+valida formato [US-XXX] tipo: descripción
+ │
+ ├── válido   → continúa el commit
+ └── inválido → rechaza el commit
+```
+
+Si alguna validación falla, el commit se aborta y no se escribe en el historial.
+
+#### Instalación de los hooks en un clon nuevo
+
+Los hooks no se "activan" solos al clonar: se configuran mediante el script `prepare`, que corre automáticamente después de `pnpm install` gracias al lifecycle de npm/pnpm.
+
+```bash
+cd backend
+pnpm install
+```
+
+#### Archivos relevantes
+
+```
+backend/.husky/pre-commit              # lint + type-check + test
+backend/.husky/commit-msg              # valida el mensaje del commit
+backend/.husky/validate-commit-msg.cjs # script de validación del formato [US-XXX]
+```
+
 ## Project setup
 
 ```bash

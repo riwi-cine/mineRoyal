@@ -5,10 +5,12 @@
   "license": "UNLICENSED",
   "private": true,
   "type": "module",
+  "packageManager": "pnpm@9.15.0",
   "engines": {
     "node": ">=20.19.0"
   },
   "scripts": {
+    "prepare": "cd .. && husky backend/.husky",
     "start": "nest start",
     "start:dev": "nest start --watch",
     "start:debug": "nest start --debug --watch",
@@ -17,9 +19,9 @@
     "format": "prettier --write \"src/**/*.ts\"",
     "lint": "eslint \"src/**/*.ts\" --fix",
     "type-check": "tsc --noEmit -p tsconfig.build.json",
-    "migration:generate": "ts-node -r tsconfig-paths/register ./node_modules/typeorm/cli.js migration:generate -d src/infrastructure/database/datasource.ts",
-    "migration:run": "ts-node -r tsconfig-paths/register --transpile-only ./node_modules/typeorm/cli.js migration:run -d src/infrastructure/database/datasource.ts",
-    "migration:revert": "ts-node -r tsconfig-paths/register --transpile-only ./node_modules/typeorm/cli.js migration:revert -d src/infrastructure/database/datasource.ts",
+    "migration:generate": "typeorm-ts-node-esm migration:generate -d src/infrastructure/database/datasource.ts",
+    "migration:run": "typeorm-ts-node-esm migration:run -d src/infrastructure/database/datasource.ts",
+    "migration:revert": "typeorm-ts-node-esm migration:revert -d src/infrastructure/database/datasource.ts",
     "seed": "ts-node ./src/infrastructure/database/seeders/index.ts",
     "test": "vitest run",
     "test:watch": "vitest",
@@ -71,6 +73,7 @@
     "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-prettier": "^5.1.1",
     "eslint-plugin-vitest": "^0.5.4",
+    "husky": "^9.1.7",
     "pg-hstore": "^2.3.4",
     "prettier": "^3.2.5",
     "sonarqube-scanner": "^5.0.1",
