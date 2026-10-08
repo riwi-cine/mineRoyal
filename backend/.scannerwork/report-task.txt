@@ -1,8 +1,0 @@
-organization=riwi-cine
-projectKey=riwi-cine-api
-serverUrl=https://sonarcloud.io
-serverVersion=8.0.0.110010
-branch=feat/auth-security
-dashboardUrl=https://sonarcloud.io/dashboard?id=riwi-cine-api&branch=feat%2Fauth-security&resolved=false
-ceTaskId=AaER_KBjEg9TuHMzwiBa
-ceTaskUrl=https://sonarcloud.io/api/ce/task?id=AaER_KBjEg9TuHMzwiBa
