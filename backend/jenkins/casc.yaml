@@ -22,7 +22,7 @@ jenkins:
           - name: "jenkins-ephemeral-agent"
             labelString: "docker-agent"
             dockerTemplateBase:
-              image: "jenkins/inbound-agent:alpine"
+              image: "jenkins-node-agent:latest"
               pullCredentialsId: ""
             remoteFs: "/home/jenkins/agent"
             connector:
