@@ -1,6 +1,6 @@
-import { dirname, join } from 'path';
+import { dirname, join } from 'node:path';
 import * as typeorm from 'typeorm';
-import { fileURLToPath } from 'url';
+import { fileURLToPath } from 'node:url';
 import { SnakeCaseNamingStrategy } from './naming/snake-case.naming-strategy.js';
 
 const __filename = fileURLToPath(import.meta.url);

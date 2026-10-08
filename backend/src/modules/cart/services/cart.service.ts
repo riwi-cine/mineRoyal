@@ -112,19 +112,25 @@ export class CartService {
       if (!product) {
         throw new NotFoundException(`Producto ${item.productId} no encontrado.`);
       }
-      if (item.quantity === 0) {
-        await this.cartItemDao.removeConcessionItem(cart.id, item.productId);
-        continue;
+      if (item.quantity > 0) {
+        if (!product.active) {
+          throw new BadRequestException(`El producto "${product.name}" no está disponible.`);
+        }
+        if (product.stock < item.quantity) {
+          throw new BadRequestException(`No hay suficiente stock de "${product.name}" (disponible: ${product.stock}).`);
+        }
       }
-      if (!product.active) {
-        throw new BadRequestException(`El producto "${product.name}" no está disponible.`);
-      }
-      // Validación: no permitir agregar productos agotados.
-      if (product.stock < item.quantity) {
-        throw new BadRequestException(`No hay suficiente stock de "${product.name}" (disponible: ${product.stock}).`);
-      }
-      await this.cartItemDao.upsertConcessionItem(cart.id, item.productId, item.quantity, Number(product.price));
     }
+
+    await Promise.all(
+      dto.concessionItems.map((item) => {
+        if (item.quantity === 0) {
+          return this.cartItemDao.removeConcessionItem(cart.id, item.productId);
+        }
+        const product = productById.get(item.productId)!;
+        return this.cartItemDao.upsertConcessionItem(cart.id, item.productId, item.quantity, Number(product.price));
+      }),
+    );
 
     await this.touch(cart);
     return this.buildResponse(cart);
@@ -187,7 +193,7 @@ export class CartService {
     const cart = await this.getActiveCartOrFail(dto.cartId);
 
     const giftCard = await this.giftCardDao.findByCode(dto.code);
-    if (!giftCard || !giftCard.active) {
+    if (!giftCard?.active) {
       throw new NotFoundException('Bono no encontrado o inactivo.');
     }
     if (Number(giftCard.balance) <= 0) {

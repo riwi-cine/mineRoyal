@@ -22,7 +22,7 @@ export class ListCitiesService {
    */
   async execute(departmentId: string): Promise<CityResponseDto[]> {
     const department = await this.departmentDao.findById(departmentId);
-    if (!department || !department.isActive) {
+    if (!department?.isActive) {
       throw new NotFoundException('Departamento no encontrado.');
     }
 

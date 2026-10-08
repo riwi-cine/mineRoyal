@@ -18,7 +18,7 @@ export class GetMovieDetailService {
    */
   async execute(movieId: string): Promise<MovieDetailResponseDto> {
     const movie = await this.movieDao.findDetailById(movieId);
-    if (!movie || !movie.isActive) {
+    if (!movie?.isActive) {
       throw new NotFoundException('Película no encontrada.');
     }
     return new MovieDetailResponseDto(movie);
