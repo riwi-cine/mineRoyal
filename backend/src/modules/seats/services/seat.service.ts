@@ -1,4 +1,5 @@
 import { BadRequestException, Injectable, NotFoundException, UnprocessableEntityException } from '@nestjs/common';
+import { calculateSeatUnitPrice } from '../../../shared/domain/money/tariff.util.js';
 import { SeatLock } from '../entities/seat-lock.entity.js';
 import { Seats } from '../entities/seat.entity.js';
 import { SeatDao } from '../dao/seat.dao.js';
@@ -45,6 +46,18 @@ const toCategory = (seatType: string | null | undefined): SeatCategory => {
 export class SeatService {
   constructor(private readonly seatDao: SeatDao) {}
 
+  /**
+   * Obtiene el mapa completo de asientos de la sala para una función específica.
+   *
+   * Evalúa dinámicamente en tiempo real si cada asiento está AVAILABLE, SELECTED (por el carrito
+   * en sesión), LOCKED (por otro usuario con bloqueo vigente), SOLD o DISABLED.
+   *
+   * @param functionId Identificador UUID de la función de cine.
+   * @param cartId Identificador UUID opcional del carrito de compras para identificar asientos seleccionados por el propio usuario.
+   * @returns El mapa de asientos con dimensiones, sala, capacidad y lista de sillas con su estado.
+   * @throws NotFoundException Si la función no existe en el sistema.
+   * @throws UnprocessableEntityException Si la función no tiene una sala física asociada.
+   */
   async getSeatMap(functionId: string, cartId?: string): Promise<SeatMap> {
     const cineFunction = await this.seatDao.findFunctionForSelection(functionId);
 
@@ -102,6 +115,19 @@ export class SeatService {
     };
   }
 
+  /**
+   * Bloquea temporalmente un conjunto de sillas para un carrito de compras.
+   *
+   * Cumple con las reglas de negocio RN-039 (bloqueo por 10 minutos), RN-040 (liberación previa de
+   * bloqueos expirados), RN-041 (control de concurrencia y validación de sillas vendidas o tomadas),
+   * RN-042 (exclusión de sillas inhabilitadas) y RN-043 (límite máximo de sillas por transacción).
+   *
+   * @param data DTO con identificadores de función, carrito y arreglo de IDs de sillas deseadas.
+   * @returns Resultado con sillas bloqueadas con éxito, sillas rechazadas y marca de tiempo de expiración.
+   * @throws BadRequestException Si no se enviaron sillas, se excede el máximo permitido, o las sillas no pertenecen a la sala.
+   * @throws NotFoundException Si la función no existe.
+   * @throws UnprocessableEntityException Si la función no tiene una sala física configurada.
+   */
   async lockSeats(data: LockSeatsDto): Promise<LockSeatsResult> {
     const { functionId, cartId } = data;
     const seatIds = [...new Set(data.seatIds)];
@@ -201,6 +227,14 @@ export class SeatService {
     };
   }
 
+  /**
+   * Libera bloqueos de sillas de un carrito en una función.
+   *
+   * Cumple con la regla RN-040 permitiendo liberación total o selectiva de asientos.
+   *
+   * @param data DTO con función, carrito y opcionalmente IDs de sillas a liberar.
+   * @returns Conteo de bloqueos eliminados.
+   */
   async releaseSeats(data: ReleaseSeatsDto): Promise<ReleaseSeatsResult> {
     const { functionId, cartId } = data;
     const seatIds = data.seatIds && data.seatIds.length > 0 ? [...new Set(data.seatIds)] : undefined;
@@ -210,6 +244,14 @@ export class SeatService {
     return { functionId, cartId, releasedCount };
   }
 
+  /**
+   * Genera el desglose y resumen económico de las sillas bloqueadas por un carrito en una función.
+   *
+   * @param functionId Identificador UUID de la función.
+   * @param cartId Identificador UUID del carrito.
+   * @returns Resumen con desglose de asientos, tarifa base, sobreprecio de sala, precio unitario y total.
+   * @throws NotFoundException Si la función no existe.
+   */
   async getReservationSummary(functionId: string, cartId: string): Promise<ReservationSummary> {
     const cineFunction = await this.seatDao.findFunctionForSelection(functionId);
     if (!cineFunction) {
@@ -218,7 +260,7 @@ export class SeatService {
 
     const basePrice = Number(cineFunction.basePrice);
     const roomExtraPrice = Number(cineFunction.room?.extraPrice ?? 0);
-    const unitPrice = basePrice + roomExtraPrice;
+    const unitPrice = calculateSeatUnitPrice(basePrice, roomExtraPrice);
 
     const locks = await this.seatDao.findCartLocks(functionId, cartId);
 

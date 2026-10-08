@@ -1,5 +1,6 @@
 import { randomUUID } from 'node:crypto';
 import { BadRequestException, GoneException, Injectable, NotFoundException } from '@nestjs/common';
+import { calculateSeatUnitPrice } from '../../../shared/domain/money/tariff.util.js';
 import { CinemaFunction } from '../../functions/entities/function.entity.js';
 import { Movie } from '../../movies/entities/movie.entity.js';
 import { GiftCardDao } from '../../promotions/dao/gift-card.dao.js';
@@ -50,6 +51,14 @@ export class CartService {
     private readonly giftCardDao: GiftCardDao,
   ) {}
 
+  /**
+   * Crea un nuevo carrito de compras para el usuario o retorna el actualmente activo.
+   *
+   * Cumple con la regla de negocio RN-044 (unicidad del carrito activo por usuario).
+   *
+   * @param dto Parámetros para la creación/obtención del carrito, incluyendo userId y opcionalmente cartId.
+   * @returns El carrito consolidado con sus líneas de entradas y confitería.
+   */
   async createOrGetCart(dto: CreateCartDto): Promise<CartResponse> {
     const existing = await this.resolveExpiry(await this.cartDao.findActiveByUserId(dto.userId));
     if (existing) {
@@ -66,11 +75,31 @@ export class CartService {
     return this.buildResponse(cart);
   }
 
+  /**
+   * Obtiene un carrito de compras a partir de su identificador UUID.
+   *
+   * Resuelve perezosamente la expiración si la ventana de inactividad de 10 minutos (RN-046) fue superada.
+   *
+   * @param cartId Identificador UUID del carrito.
+   * @returns Datos consolidados del carrito y desglose financiero.
+   * @throws NotFoundException Si el carrito no existe en la base de datos.
+   */
   async getCart(cartId: string): Promise<CartResponse> {
     const cart = await this.getCartOrFail(cartId);
     return this.buildResponse(cart);
   }
 
+  /**
+   * Agrega, modifica o elimina (cantidad 0) productos de confitería en el carrito.
+   *
+   * Valida stock disponible, estado del producto y renueva la ventana de expiración del carrito.
+   *
+   * @param dto Objeto con el identificador del carrito y lista de ítems de confitería.
+   * @returns El carrito actualizado con subtotales recalculados.
+   * @throws NotFoundException Si el producto o carrito no existen.
+   * @throws BadRequestException Si el producto está inactivo o la cantidad solicitada excede el inventario.
+   * @throws GoneException Si el carrito expiró o ya no está en estado ACTIVE.
+   */
   async updateCart(dto: UpdateCartDto): Promise<CartResponse> {
     const cart = await this.getActiveCartOrFail(dto.cartId);
 
@@ -101,6 +130,15 @@ export class CartService {
     return this.buildResponse(cart);
   }
 
+  /**
+   * Cancela el carrito de compras y libera las sillas bloqueadas asociadas (RN-045).
+   *
+   * Limpia los ítems de confitería y bonos asociados, y marca el carrito como CANCELLED.
+   *
+   * @param dto Objeto con el identificador del carrito a cancelar.
+   * @returns Resultado con el estado final y el total de sillas liberadas.
+   * @throws NotFoundException Si el carrito no existe.
+   */
   async deleteCart(dto: CartIdDto): Promise<DeleteCartResult> {
     const cart = await this.getCartOrFail(dto.cartId);
 
@@ -112,6 +150,14 @@ export class CartService {
     return { cartId: cart.id, status: 'CANCELLED', releasedSeats };
   }
 
+  /**
+   * Aplica el beneficio de membresía activa del usuario a las entradas del carrito (RN-047).
+   *
+   * @param dto Objeto con el identificador del carrito.
+   * @returns El carrito con el descuento de membresía reflejado en los totales.
+   * @throws NotFoundException Si el usuario no tiene una membresía activa vigente.
+   * @throws GoneException Si el carrito ya no está activo.
+   */
   async applyMembership(dto: CartIdDto): Promise<CartResponse> {
     const cart = await this.getActiveCartOrFail(dto.cartId);
 
@@ -126,6 +172,17 @@ export class CartService {
     return this.buildResponse(cart);
   }
 
+  /**
+   * Aplica un bono de regalo (giftcard) al carrito de compras.
+   *
+   * Valida la existencia del bono, su estado activo y saldo disponible.
+   *
+   * @param dto Objeto con el identificador del carrito y el código del bono.
+   * @returns El carrito actualizado con el bono vinculado.
+   * @throws NotFoundException Si el bono no existe o está inactivo.
+   * @throws BadRequestException Si el saldo del bono es 0 o negativo.
+   * @throws GoneException Si el carrito ya no está activo.
+   */
   async applyGiftCard(dto: ApplyGiftCardDto): Promise<CartResponse> {
     const cart = await this.getActiveCartOrFail(dto.cartId);
 
@@ -274,7 +331,7 @@ function buildTicketLines(
     const movie = movieById.get(cineFunction.movieId);
     const basePrice = Number(cineFunction.basePrice);
     const roomExtraPrice = Number(cineFunction.room?.extraPrice ?? 0);
-    const unitPrice = basePrice + roomExtraPrice;
+    const unitPrice = calculateSeatUnitPrice(basePrice, roomExtraPrice);
     const quantity = functionLocks.length;
     const lineSubtotal = unitPrice * quantity;
     const discount = membershipDiscountPercent > 0 ? lineSubtotal * (membershipDiscountPercent / 100) : 0;

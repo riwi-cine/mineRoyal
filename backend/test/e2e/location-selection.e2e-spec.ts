@@ -12,12 +12,15 @@ import { ListDepartmentsService } from '../../src/modules/locations/services/lis
 import { LocationsController } from '../../src/modules/locations/controllers/locations.controller.js';
 import { UserLocationDao } from '../../src/modules/users/dao/user-location.dao.js';
 import { SetUserLocationService } from '../../src/modules/users/services/set-user-location.service.js';
+import { UsersService } from '../../src/modules/users/services/users.service.js';
 import { UsersController } from '../../src/modules/users/controllers/users.controller.js';
+
+vi.mock('bcrypt', () => ({ compare: vi.fn(), hash: vi.fn() }));
 
 const countryId = '11111111-1111-4111-a111-111111111111';
 const departmentId = '22222222-2222-4222-a222-222222222222';
 const cityId = '33333333-3333-4333-a333-333333333333';
-const userId = '44444444-4444-4444-a444-444444444444';
+const userId = 1;
 
 const country = { id: countryId, name: 'Colombia', isoCode: 'CO', isActive: true };
 const department = { id: departmentId, name: 'Antioquia', countryId, isActive: true };
@@ -35,6 +38,7 @@ describe('Location selection (e2e happy path)', () => {
         ListDepartmentsService,
         ListCitiesService,
         SetUserLocationService,
+        { provide: UsersService, useValue: {} },
         {
           provide: CountryDao,
           useValue: { findAllActive: async () => [country], findById: async () => country },

@@ -10,14 +10,13 @@ import { SeatDao } from './dao/seat.dao.js';
 import { SeatService } from './services/seat.service.js';
 import { SeatController } from './controllers/seat.controller.js';
 import { FunctionSeatsController } from './controllers/function-seats.controller.js';
-import { ReservationsController } from '../reservations/controllers/reservations.controller.js';
 
 @Module({
   // Room/RoomType are registered here (not just referenced via relations) so TypeORM's
   // autoLoadEntities can build their metadata — without it, `relations: ['room']` queries
   // in SeatDao fail at bootstrap since Room was never registered by any module.
   imports: [TypeOrmModule.forFeature([Seats, SeatLock, CinemaFunction, Ticket, Room, RoomType])],
-  controllers: [SeatController, FunctionSeatsController, ReservationsController],
+  controllers: [SeatController, FunctionSeatsController],
   providers: [SeatDao, SeatService],
   exports: [SeatDao, SeatService],
 })

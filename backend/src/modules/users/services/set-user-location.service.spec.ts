@@ -1,19 +1,19 @@
 import { BadRequestException, NotFoundException } from '@nestjs/common';
-import { SetUserLocationService } from './set-user-location.service.js';
 import { CinemaDao } from '../../locations/dao/cinema.dao.js';
 import { CityDao } from '../../locations/dao/city.dao.js';
 import { CountryDao } from '../../locations/dao/country.dao.js';
 import { DepartmentDao } from '../../locations/dao/department.dao.js';
-import { UserLocationDao } from '../dao/user-location.dao.js';
+import { City } from '../../locations/entities/city.entity.js';
 import { Country } from '../../locations/entities/country.entity.js';
 import { Department } from '../../locations/entities/department.entity.js';
-import { City } from '../../locations/entities/city.entity.js';
-import { UserLocation } from '../entities/user-location.entity.js';
+import { UserLocationDao } from '../dao/user-location.dao.js';
 import { SetUserLocationDto } from '../dtos/set-user-location.dto.js';
+import { UserLocation } from '../entities/user-location.entity.js';
+import { SetUserLocationService } from './set-user-location.service.js';
 
 describe('SetUserLocationService', () => {
   const dto: SetUserLocationDto = {
-    userId: 'user-1',
+    userId: 1,
     countryId: 'country-1',
     departmentId: 'department-1',
     cityId: 'city-1',
@@ -30,7 +30,7 @@ describe('SetUserLocationService', () => {
 
   const userLocation: UserLocation = {
     id: 'location-1',
-    userId: 'user-1',
+    userId: 1,
     countryId: 'country-1',
     departmentId: 'department-1',
     cityId: 'city-1',
@@ -82,7 +82,7 @@ describe('SetUserLocationService', () => {
 
     const result = await service.execute(dto);
 
-    expect(userLocationDao.upsert).toHaveBeenCalledWith('user-1', 'country-1', 'department-1', 'city-1');
+    expect(userLocationDao.upsert).toHaveBeenCalledWith(1, 'country-1', 'department-1', 'city-1');
     expect(result.cityId).toBe('city-1');
     expect(result.message).toBe('Ubicación guardada correctamente.');
   });

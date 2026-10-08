@@ -7,8 +7,8 @@ export class Membership {
   @PrimaryGeneratedColumn('uuid')
   id!: string;
 
-  @Column({ name: 'user_id', type: 'uuid', unique: true })
-  userId!: string;
+  @Column({ name: 'user_id', type: 'integer', unique: true })
+  userId!: number;
 
   @Column({ type: 'varchar', length: 30 })
   tier!: string;
@@ -31,7 +31,7 @@ export class Membership {
  */
 export const membershipSchema = z.object({
   id: z.string().uuid(),
-  userId: z.string().uuid(),
+  userId: z.number().int().positive(),
   tier: z.string().min(1).max(30),
   discountPercent: z.coerce.number().min(0).max(100),
   active: z.boolean().default(true),

@@ -4,6 +4,7 @@ build/
 
 # dependencies
 node_modules/
+.pnpm-store/
 
 # Logs
 logs

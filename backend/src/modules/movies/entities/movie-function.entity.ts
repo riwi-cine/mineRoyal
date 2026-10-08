@@ -12,11 +12,7 @@ import { Cinema } from '../../locations/entities/cinema.entity.js';
 import { Format } from './format.entity.js';
 import type { Movie } from './movie.entity.js';
 import { Room } from './room.entity.js';
-
-const priceTransformer = {
-  to: (value?: number): number | undefined => value,
-  from: (value?: string): number => (value ? Number.parseFloat(value) : 0),
-};
+import { numericPriceTransformer } from '../../../shared/infrastructure/database/transformers/numeric.transformer.js';
 
 @Entity('movie_functions')
 export class MovieFunction {
@@ -54,7 +50,7 @@ export class MovieFunction {
   @Column({ name: 'starts_at', type: 'timestamp' })
   startsAt!: Date;
 
-  @Column({ name: 'ticket_price', type: 'numeric', precision: 10, scale: 2, transformer: priceTransformer })
+  @Column({ name: 'ticket_price', type: 'numeric', precision: 10, scale: 2, transformer: numericPriceTransformer })
   ticketPrice!: number;
 
   @Column({ name: 'total_seats', type: 'int' })

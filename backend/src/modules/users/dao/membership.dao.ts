@@ -10,7 +10,7 @@ export class MembershipDao {
     private readonly repository: Repository<Membership>,
   ) {}
 
-  findActiveByUserId(userId: string): Promise<Membership | null> {
+  findActiveByUserId(userId: number): Promise<Membership | null> {
     return this.repository.findOne({ where: { userId, active: true } });
   }
 }

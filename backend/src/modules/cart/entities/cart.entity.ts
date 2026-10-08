@@ -22,8 +22,8 @@ export class Cart {
   @PrimaryColumn('uuid')
   id!: string;
 
-  @Column({ name: 'user_id', type: 'uuid' })
-  userId!: string;
+  @Column({ name: 'user_id', type: 'integer' })
+  userId!: number;
 
   @Column({ type: 'varchar', length: 30, default: 'ACTIVE' })
   status!: CartStatus;
@@ -45,7 +45,7 @@ export class Cart {
  */
 export const cartSchema = z.object({
   id: z.string().uuid(),
-  userId: z.string().uuid(),
+  userId: z.number().int().positive(),
   status: cartStatusSchema,
   membershipApplied: z.boolean().default(false),
   expiresAt: z.date(),
@@ -53,13 +53,15 @@ export const cartSchema = z.object({
 });
 
 /**
- * Esquema para validar los datos necesarios al crear un nuevo Carrito
+ * Esquema para validar los datos necesarios al crear un nuevo Carrito en persistencia
  */
-export const createCartSchema = cartSchema.omit({
+export const cartInsertSchema = cartSchema.omit({
   id: true,
   createdAt: true,
 });
+export const createCartSchema = cartInsertSchema;
 
 // Tipos inferidos a partir de los esquemas de Zod
 export type CartInput = z.infer<typeof cartSchema>;
-export type CreateCartInput = z.infer<typeof createCartSchema>;
+export type CartInsertInput = z.infer<typeof cartInsertSchema>;
+export type CreateCartInput = CartInsertInput;

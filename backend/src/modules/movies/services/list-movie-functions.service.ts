@@ -4,17 +4,28 @@ import { MovieFunctionDao } from '../dao/movie-function.dao.js';
 import { MovieDao } from '../dao/movie.dao.js';
 import { MovieFunctionResponseDto } from '../dtos/movie-function-response.dto.js';
 
+/**
+ * Servicio para listar funciones de una película filtradas según la ciudad preferida del usuario.
+ */
 @Injectable()
-export class ListMovieFunctionsService {
+export class ListMovieFunctionsByCityService {
   constructor(
     private readonly movieDao: MovieDao,
     private readonly movieFunctionDao: MovieFunctionDao,
     private readonly userLocationDao: UserLocationDao,
   ) {}
 
+  /**
+   * Consulta las funciones futuras de una película en la ciudad configurada por el usuario autenticado.
+   *
+   * @param movieId Identificador UUID de la película.
+   * @param userId Identificador numérico del usuario.
+   * @returns Listado de funciones en la ciudad del usuario o mensaje descriptivo si no tiene ubicación configurada.
+   * @throws NotFoundException Si la película no existe o no está activa.
+   */
   async execute(
     movieId: string,
-    userId: string,
+    userId: number,
   ): Promise<{ movieId: string; cityId: string | null; functions: MovieFunctionResponseDto[]; message?: string }> {
     const movie = await this.movieDao.findActiveById(movieId);
     if (!movie) {
@@ -36,3 +47,5 @@ export class ListMovieFunctionsService {
     };
   }
 }
+
+export { ListMovieFunctionsByCityService as ListMovieFunctionsService };

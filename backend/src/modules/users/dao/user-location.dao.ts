@@ -10,11 +10,11 @@ export class UserLocationDao {
     private readonly dao: Repository<UserLocation>,
   ) {}
 
-  findByUserId(userId: string): Promise<UserLocation | null> {
+  findByUserId(userId: number): Promise<UserLocation | null> {
     return this.dao.findOne({ where: { userId } });
   }
 
-  async upsert(userId: string, countryId: string, departmentId: string, cityId: string): Promise<UserLocation> {
+  async upsert(userId: number, countryId: string, departmentId: string, cityId: string): Promise<UserLocation> {
     const existing = await this.findByUserId(userId);
     const entity = this.dao.merge(existing ?? this.dao.create({ userId }), {
       countryId,

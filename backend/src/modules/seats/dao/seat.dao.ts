@@ -89,6 +89,18 @@ export class SeatDao {
     });
   }
 
+  findLocksByCartId(cartId: string): Promise<SeatLock[]> {
+    return this.seatLockDao.find({
+      where: { cartId },
+      relations: ['seat'],
+    });
+  }
+
+  async deleteLocksByCartId(cartId: string): Promise<number> {
+    const result = await this.seatLockDao.delete({ cartId });
+    return result.affected ?? 0;
+  }
+
   async deleteExpiredLocks(functionId: string, seatIds: string[]): Promise<number> {
     if (seatIds.length === 0) {
       return 0;

@@ -2,12 +2,22 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { MovieDao } from '../dao/movie.dao.js';
 import { MovieSummaryResponseDto } from '../dtos/movie-summary-response.dto.js';
 
+/**
+ * Servicio encargado de generar recomendaciones de películas similares basadas en coincidencia de géneros.
+ */
 @Injectable()
 export class ListMovieRecommendationsService {
   private static readonly MAX_RECOMMENDATIONS = 5;
 
   constructor(private readonly movieDao: MovieDao) {}
 
+  /**
+   * Calcula hasta 5 películas afines a la indicada según el mayor traslape de géneros cinematográficos.
+   *
+   * @param movieId Identificador UUID de la película de referencia.
+   * @returns Lista de películas recomendadas ordenadas por afinidad.
+   * @throws NotFoundException Si la película de referencia no existe.
+   */
   async execute(movieId: string): Promise<MovieSummaryResponseDto[]> {
     const movie = await this.movieDao.findActiveWithGenresById(movieId);
     if (!movie) {

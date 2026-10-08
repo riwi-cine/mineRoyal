@@ -7,6 +7,9 @@ import { UserLocationDao } from '../dao/user-location.dao.js';
 import { SetUserLocationDto } from '../dtos/set-user-location.dto.js';
 import { UserLocationResponseDto } from '../dtos/user-location-response.dto.js';
 
+/**
+ * Servicio encargado de asociar o actualizar la preferencia geográfica del usuario (país, departamento, ciudad).
+ */
 @Injectable()
 export class SetUserLocationService {
   constructor(
@@ -17,6 +20,14 @@ export class SetUserLocationService {
     private readonly userLocationDao: UserLocationDao,
   ) {}
 
+  /**
+   * Guarda o actualiza la ubicación geográfica preferida del usuario, validando jerarquía y disponibilidad de cines.
+   *
+   * @param dto Datos de la ubicación (userId, countryId, departmentId, cityId).
+   * @returns DTO de confirmación con la ubicación guardada.
+   * @throws NotFoundException Si el país, departamento o ciudad no existen o están inactivos.
+   * @throws BadRequestException Si la jerarquía geográfica no coincide o la ciudad no tiene cines activos.
+   */
   async execute(dto: SetUserLocationDto): Promise<UserLocationResponseDto> {
     const country = await this.countryDao.findById(dto.countryId);
     if (!country || !country.isActive) {
