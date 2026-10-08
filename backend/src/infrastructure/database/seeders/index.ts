@@ -2,12 +2,14 @@ import { DataSource } from 'typeorm';
 import { dataSourceOptions } from '../datasource.js';
 import { seedLocations } from './locations.seeder.js';
 import { seedMovies } from './movies.seeder.js';
+import { seedUsers } from './users.seeder.js';
 
 async function main(): Promise<void> {
   const dataSource = new DataSource(dataSourceOptions);
   await dataSource.initialize();
   await seedLocations(dataSource);
   await seedMovies(dataSource);
+  await seedUsers(dataSource);
   await dataSource.destroy();
 }
 

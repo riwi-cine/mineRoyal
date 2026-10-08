@@ -22,7 +22,7 @@
     "migration:generate": "typeorm-ts-node-esm migration:generate -d src/infrastructure/database/datasource.ts",
     "migration:run": "typeorm migration:run -d dist/infrastructure/database/datasource.js",
     "migration:revert": "typeorm migration:revert -d dist/infrastructure/database/datasource.js",
-    "seed": "ts-node ./src/infrastructure/database/seeders/index.ts",
+    "seed": "node dist/infrastructure/database/seeders/index.js",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:cov": "vitest run --coverage --coverage.reporter=text --coverage.reporter=lcov",
