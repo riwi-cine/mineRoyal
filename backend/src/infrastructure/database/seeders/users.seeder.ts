@@ -1,8 +1,8 @@
-import { randomUUID } from 'node:crypto';
 import { hash } from 'bcrypt';
+import { randomUUID } from 'node:crypto';
 import { DataSource, Repository } from 'typeorm';
-import { Cart } from '../../../modules/cart/entities/cart.entity.js';
 import { CartConcessionItem } from '../../../modules/cart/entities/cart-concession-item.entity.js';
+import { Cart } from '../../../modules/cart/entities/cart.entity.js';
 import { Product } from '../../../modules/cart/entities/product.entity.js';
 import { City } from '../../../modules/locations/entities/city.entity.js';
 import { Country } from '../../../modules/locations/entities/country.entity.js';
