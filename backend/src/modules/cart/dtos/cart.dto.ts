@@ -8,7 +8,7 @@ export type { CartStatus } from '../entities/cart.entity.js';
 /**
  * Esquema para el cuerpo de la petición que crea (o recupera, RN-044) el carrito activo de un usuario.
  */
-export const createCartSchema = z.object({
+export const createCartDtoSchema = z.object({
   userId: z.coerce.number().int().positive(),
   /**
    * Optional id to reuse — the frontend generates a cart id before the cart
@@ -17,7 +17,8 @@ export const createCartSchema = z.object({
    */
   cartId: z.string().uuid().optional(),
 });
-export class CreateCartDto extends createZodDto(createCartSchema) {}
+export const createCartSchema = createCartDtoSchema;
+export class CreateCartDto extends createZodDto(createCartDtoSchema) {}
 
 /**
  * Esquema de un ítem de confitería a agregar/actualizar/eliminar (cantidad 0) en el carrito.

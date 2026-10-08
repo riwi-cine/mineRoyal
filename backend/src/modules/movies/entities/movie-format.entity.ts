@@ -1,11 +1,7 @@
 import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn, Relation } from 'typeorm';
+import { numericPriceTransformer } from '../../../shared/infrastructure/database/transformers/numeric.transformer.js';
 import { Format } from './format.entity.js';
 import type { Movie } from './movie.entity.js';
-
-const priceTransformer = {
-  to: (value?: number): number | undefined => value,
-  from: (value?: string): number => (value ? Number.parseFloat(value) : 0),
-};
 
 @Entity('movie_formats')
 export class MovieFormat {
@@ -18,7 +14,7 @@ export class MovieFormat {
   @Column({ name: 'format_id', type: 'uuid' })
   formatId!: string;
 
-  @Column({ name: 'price', type: 'numeric', precision: 10, scale: 2, transformer: priceTransformer })
+  @Column({ name: 'price', type: 'numeric', precision: 10, scale: 2, transformer: numericPriceTransformer })
   price!: number;
 
   @ManyToOne('Movie', (movie: Movie) => movie.movieFormats, { onDelete: 'CASCADE' })

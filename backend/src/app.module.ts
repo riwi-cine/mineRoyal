@@ -12,6 +12,7 @@ import { LocationsModule } from './modules/locations/locations.module.js';
 import { MoviesModule } from './modules/movies/movies.module.js';
 import { PromotionsModule } from './modules/promotions/promotions.module.js';
 import { SeatModule } from './modules/seats/seat.module.js';
+import { ReservationsModule } from './modules/reservations/reservations.module.js';
 import { UsersModule } from './modules/users/users.module.js';
 import { HealthModule } from './infrastructure/web/health/health.module.js';
 
@@ -29,6 +30,7 @@ import { HealthModule } from './infrastructure/web/health/health.module.js';
     MoviesModule,
     UsersModule,
     SeatModule,
+    ReservationsModule,
     FunctionsModule,
     PromotionsModule,
     CartModule,

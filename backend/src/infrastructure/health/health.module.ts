@@ -5,4 +5,6 @@ import { HealthCheckService } from './health-check.service.js';
   providers: [HealthCheckService],
   exports: [HealthCheckService], // exponemos al modulo web
 })
-export class HealthModule {}
+export class HealthInfrastructureModule {}
+
+export { HealthInfrastructureModule as HealthModule };

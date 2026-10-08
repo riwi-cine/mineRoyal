@@ -37,6 +37,9 @@ const parseTtl = (value: string | undefined, fallback: number, name: string): nu
   return ttl;
 };
 
+/**
+ * Servicio central de autenticación y autorización con JWT y Refresh Tokens almacenados en Redis.
+ */
 @Injectable()
 export class AuthService {
   private readonly accessSecret: string;
@@ -68,10 +71,25 @@ export class AuthService {
     );
   }
 
+  /**
+   * Registra un nuevo usuario delegando en UsersService.
+   *
+   * @param dto Datos del registro (nombre, correo, contraseña).
+   * @returns Datos públicos del usuario registrado.
+   */
   register(dto: RegisterDto): Promise<UserResponseDto> {
     return this.usersService.create(dto);
   }
 
+  /**
+   * Autentica las credenciales de un usuario y genera un par de tokens (Access y Refresh).
+   *
+   * Almacena el hash del Refresh Token en Redis bajo la sesión generada.
+   *
+   * @param dto Credenciales de acceso (email y contraseña).
+   * @returns Objeto con par de tokens y datos públicos del usuario.
+   * @throws UnauthorizedException Si el email no existe o la contraseña es incorrecta.
+   */
   async login(dto: LoginDto): Promise<TokenPair & { user: UserResponseDto }> {
     const user = await this.userDao.findByEmail(dto.email);
     if (!user || !(await compare(dto.password, user.passwordHash))) {
@@ -89,6 +107,15 @@ export class AuthService {
     return { ...tokens, user: new UserResponseDto(user) };
   }
 
+  /**
+   * Rota el refresh token por uno nuevo y emite un nuevo access token.
+   *
+   * Implementa rotación atómica de tokens en Redis para detectar reutilización de tokens robados.
+   *
+   * @param refreshToken Token de refresco recibido por cookie o body.
+   * @returns Nuevo par de tokens (accessToken y refreshToken).
+   * @throws UnauthorizedException Si el token es nulo, inválido, expiró o ya fue utilizado.
+   */
   async refresh(refreshToken: string | undefined): Promise<TokenPair> {
     if (!refreshToken) {
       throw new UnauthorizedException('Se requiere un refresh token.');
@@ -127,6 +154,15 @@ export class AuthService {
     return tokens;
   }
 
+  /**
+   * Invalida la sesión actual del usuario.
+   *
+   * Agrega el Access Token actual a la lista negra en Redis por el tiempo restante de vida
+   * y remueve la sesión de refresh token.
+   *
+   * @param payload Payload decodificado del Access Token.
+   * @param accessToken Cadena JWT del token de acceso actual.
+   */
   async logout(payload: AccessTokenPayload, accessToken: string): Promise<void> {
     const ttl = payload.exp - Math.floor(Date.now() / 1000);
     if (ttl > 0) {
@@ -135,6 +171,13 @@ export class AuthService {
     await this.redisService.delete(refreshSessionKey(payload.sid));
   }
 
+  /**
+   * Verifica y decodifica un Access Token JWT.
+   *
+   * @param token Cadena del token JWT.
+   * @returns Payload verificado del token de acceso.
+   * @throws UnauthorizedException Si el token es inválido, manipulado o expiró.
+   */
   async verifyAccessToken(token: string): Promise<AccessTokenPayload> {
     let payload: AccessTokenPayload;
     try {
@@ -159,10 +202,22 @@ export class AuthService {
     return payload;
   }
 
+  /**
+   * Comprueba si un Access Token ha sido explícitamente revocado en Redis.
+   *
+   * @param token Cadena del token JWT.
+   * @returns Verdadero si el token se encuentra revocado, falso en caso contrario.
+   */
   async isAccessTokenRevoked(token: string): Promise<boolean> {
     return (await this.redisService.get(revokedAccessTokenKey(token))) !== null;
   }
 
+  /**
+   * Comprueba si una sesión de usuario se encuentra activa en Redis.
+   *
+   * @param sessionId Identificador UUID de la sesión.
+   * @returns Verdadero si la sesión está registrada y vigente.
+   */
   async hasActiveSession(sessionId: string): Promise<boolean> {
     return (await this.redisService.get(refreshSessionKey(sessionId))) !== null;
   }

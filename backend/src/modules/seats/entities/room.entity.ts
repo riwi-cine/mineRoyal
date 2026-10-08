@@ -26,12 +26,12 @@ export class Room {
   @JoinColumn({ name: 'cinema_id' })
   cinema?: Relation<Cinema>;
 
-  @Column({ name: 'room_type_id', type: 'uuid' })
-  roomTypeId!: string;
+  @Column({ name: 'room_type_id', type: 'uuid', nullable: true })
+  roomTypeId?: string | null;
 
-  @ManyToOne(() => RoomType, (roomType) => roomType.rooms, { onDelete: 'RESTRICT' })
+  @ManyToOne(() => RoomType, (roomType) => roomType.rooms, { onDelete: 'RESTRICT', nullable: true })
   @JoinColumn({ name: 'room_type_id' })
-  roomType?: Relation<RoomType>;
+  roomType?: Relation<RoomType> | null;
 
   @Column({ type: 'varchar', length: 50 })
   name!: string;
@@ -58,7 +58,7 @@ export class Room {
 export const roomSchema = z.object({
   id: z.string().uuid(),
   cinemaId: z.string().uuid(),
-  roomTypeId: z.string().uuid(),
+  roomTypeId: z.string().uuid().nullable().optional(),
   name: z.string().min(1).max(50),
   capacity: z.coerce.number().int().positive(),
   extraPrice: z.coerce.number().nonnegative().default(0),
@@ -78,3 +78,5 @@ export const createRoomSchema = roomSchema.omit({
 // Tipos inferidos a partir de los esquemas de Zod
 export type RoomInput = z.infer<typeof roomSchema>;
 export type CreateRoomInput = z.infer<typeof createRoomSchema>;
+
+export { Room as SeatRoom };

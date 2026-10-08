@@ -3,6 +3,9 @@ import { CountryDao } from '../dao/country.dao.js';
 import { DepartmentDao } from '../dao/department.dao.js';
 import { DepartmentResponseDto } from '../dtos/department-response.dto.js';
 
+/**
+ * Servicio encargado de listar los departamentos o estados de un país específico.
+ */
 @Injectable()
 export class ListDepartmentsService {
   constructor(
@@ -10,6 +13,13 @@ export class ListDepartmentsService {
     private readonly departmentDao: DepartmentDao,
   ) {}
 
+  /**
+   * Consulta los departamentos activos que pertenecen al país especificado.
+   *
+   * @param countryId Identificador UUID del país.
+   * @returns Lista de departamentos asociados en formato DepartmentResponseDto.
+   * @throws NotFoundException Si el país no existe o está inactivo.
+   */
   async execute(countryId: string): Promise<DepartmentResponseDto[]> {
     const country = await this.countryDao.findById(countryId);
     if (!country || !country.isActive) {

@@ -1,23 +1,28 @@
-import { Body, Controller, Get, Post, Req, Res, UnauthorizedException, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  HttpCode,
+  HttpStatus,
+  Post,
+  Req,
+  Res,
+  UnauthorizedException,
+  UseGuards,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
-import type { CookieOptions, Request, Response } from 'express';
-import { AuthService } from '../services/auth.service.js';
+import { ApiBearerAuth, ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import type { CookieOptions, Response } from 'express';
+import type { AuthenticatedRequest } from '../../../shared/interfaces/authenticated-request.interface.js';
+import { UsersService } from '../../users/services/users.service.js';
 import { LoginDto, RefreshTokenDto, RegisterDto } from '../dtos/auth.dto.js';
 import { JwtAuthGuard } from '../guards/jwt-auth.guard.js';
-import { UsersService } from '../../users/services/users.service.js';
+import { AuthService } from '../services/auth.service.js';
 
-interface AuthenticatedRequest extends Request {
-  accessToken?: string;
-  user?: {
-    sub: number;
-    email: string;
-    sid: string;
-    tokenUse: 'access';
-    exp: number;
-  };
-}
-
+/**
+ * Controlador de Autenticación y Gestión de Sesiones (JWT + Redis Blacklist).
+ * Administra el registro, login con cookies HttpOnly, rotación segura de tokens y logout.
+ */
 @ApiTags('auth')
 @Controller('auth')
 export class AuthController {
@@ -36,16 +41,45 @@ export class AuthController {
     };
   }
 
+  /**
+   * Registra una nueva cuenta de usuario en el sistema.
+   * @param dto Datos del usuario (nombre, correo, contraseña).
+   * @returns Datos del usuario creado (excluyendo el hash de contraseña).
+   */
   @Post('register')
-  @ApiOperation({ summary: 'Registra una cuenta de usuario.' })
-  @ApiResponse({ status: 201, description: 'Usuario registrado.' })
+  @ApiOperation({
+    summary: 'Registra una nueva cuenta de usuario',
+    description: 'Crea un usuario en el sistema, asegurando contraseña cifrada con bcrypt y unicidad de correo.',
+  })
+  @ApiBody({ type: RegisterDto })
+  @ApiResponse({ status: 201, description: 'Usuario registrado exitosamente.' })
+  @ApiResponse({
+    status: 400,
+    description: 'Datos de registro inválidos (formato de correo o longitud de contraseña).',
+  })
+  @ApiResponse({ status: 409, description: 'El correo electrónico ya se encuentra registrado.' })
   register(@Body() dto: RegisterDto) {
     return this.authService.register(dto);
   }
 
+  /**
+   * Autentica las credenciales del usuario y genera el par de tokens.
+   * Establece una cookie HttpOnly con el refreshToken y retorna el accessToken.
+   * @param dto Credenciales de acceso (email, password).
+   * @param response Objeto de respuesta HTTP de Express.
+   * @returns Objeto con accessToken y datos seguros del usuario.
+   */
   @Post('login')
-  @ApiOperation({ summary: 'Inicia sesión y establece una cookie HttpOnly de refresh.' })
-  @ApiResponse({ status: 201, description: 'Sesión iniciada.' })
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary: 'Inicia sesión y genera par de tokens JWT',
+    description:
+      'Verifica credenciales contra bcrypt, almacena la sesión en Redis y retorna accessToken + cookie HttpOnly.',
+  })
+  @ApiBody({ type: LoginDto })
+  @ApiResponse({ status: 200, description: 'Autenticación exitosa.' })
+  @ApiResponse({ status: 400, description: 'Formato de credenciales inválido.' })
+  @ApiResponse({ status: 401, description: 'Credenciales incorrectas o usuario no encontrado.' })
   async login(@Body() dto: LoginDto, @Res({ passthrough: true }) response: Response) {
     const result = await this.authService.login(dto);
     response.cookie('refreshToken', result.refreshToken, {
@@ -55,8 +89,23 @@ export class AuthController {
     return { accessToken: result.accessToken, user: result.user };
   }
 
+  /**
+   * Rota el refresh token y expide un nuevo access token de corta duración.
+   * Previene reuso de tokens mediante validación atómica en Redis.
+   * @param request Petición entrante para leer cookie HttpOnly.
+   * @param dto Payload alternativo con refreshToken en el cuerpo.
+   * @param response Objeto de respuesta HTTP para actualizar la cookie.
+   * @returns Nuevo access token generado.
+   */
   @Post('refresh-token')
-  @ApiOperation({ summary: 'Rota el refresh token y entrega un nuevo access token.' })
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary: 'Rota el refresh token y entrega un nuevo access token',
+    description: 'Aplica rotación atómica de tokens en Redis (invalida el token anterior al emitir el nuevo).',
+  })
+  @ApiBody({ type: RefreshTokenDto, required: false })
+  @ApiResponse({ status: 200, description: 'Token de acceso renovado exitosamente.' })
+  @ApiResponse({ status: 401, description: 'Refresh token no válido, expirado o ya utilizado.' })
   async refresh(
     @Req() request: AuthenticatedRequest,
     @Body() dto: RefreshTokenDto | undefined,
@@ -71,10 +120,20 @@ export class AuthController {
     return { accessToken: tokens.accessToken };
   }
 
+  /**
+   * Consulta el perfil del usuario autenticado actualmente a partir de su Bearer token.
+   * @param request Petición autenticada con datos del payload JWT.
+   * @returns Datos del usuario activo.
+   */
   @Get('me')
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
-  @ApiOperation({ summary: 'Devuelve el perfil asociado al access token.' })
+  @ApiOperation({
+    summary: 'Obtiene el perfil del usuario autenticado',
+    description: 'Decodifica el Bearer Access Token validando su firma y que no esté en la lista negra de Redis.',
+  })
+  @ApiResponse({ status: 200, description: 'Perfil retornado exitosamente.' })
+  @ApiResponse({ status: 401, description: 'Token de acceso inválido, revocado o no proporcionado.' })
   async me(@Req() request: AuthenticatedRequest) {
     if (!request.user) {
       throw new UnauthorizedException('La solicitud no contiene un usuario autenticado.');
@@ -82,10 +141,22 @@ export class AuthController {
     return this.usersService.findOne(request.user.sub);
   }
 
+  /**
+   * Cierra la sesión activa: revoca el access token en Redis y elimina la cookie de refresh.
+   * @param request Petición con sesión autenticada.
+   * @param response Objeto de respuesta HTTP para limpiar la cookie.
+   * @returns Mensaje de confirmación.
+   */
   @Post('logout')
   @UseGuards(JwtAuthGuard)
+  @HttpCode(HttpStatus.OK)
   @ApiBearerAuth()
-  @ApiOperation({ summary: 'Revoca la sesión y elimina la cookie de refresh.' })
+  @ApiOperation({
+    summary: 'Cierra sesión e invalida los tokens activos',
+    description: 'Agrega el access token a la lista negra en Redis y borra la sesión de refreshToken.',
+  })
+  @ApiResponse({ status: 200, description: 'Sesión cerrada correctamente.' })
+  @ApiResponse({ status: 401, description: 'Token de acceso inválido o no autenticado.' })
   async logout(@Req() request: AuthenticatedRequest, @Res({ passthrough: true }) response: Response) {
     if (!request.user || !request.accessToken) {
       throw new UnauthorizedException('La solicitud no contiene una sesión autenticada.');

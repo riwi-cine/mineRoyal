@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import { Movie } from '../entities/movie.entity.js';
 
 @Injectable()
@@ -39,6 +39,15 @@ export class MovieDao {
       where: { isActive: true },
       relations: { movieGenres: { genre: true } },
       order: { title: 'ASC' },
+    });
+  }
+
+  findByIds(movieIds: string[]): Promise<Movie[]> {
+    if (movieIds.length === 0) {
+      return Promise.resolve([]);
+    }
+    return this.dao.find({
+      where: { id: In(movieIds) },
     });
   }
 }

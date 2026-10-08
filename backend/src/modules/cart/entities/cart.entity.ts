@@ -53,13 +53,15 @@ export const cartSchema = z.object({
 });
 
 /**
- * Esquema para validar los datos necesarios al crear un nuevo Carrito
+ * Esquema para validar los datos necesarios al crear un nuevo Carrito en persistencia
  */
-export const createCartSchema = cartSchema.omit({
+export const cartInsertSchema = cartSchema.omit({
   id: true,
   createdAt: true,
 });
+export const createCartSchema = cartInsertSchema;
 
 // Tipos inferidos a partir de los esquemas de Zod
 export type CartInput = z.infer<typeof cartSchema>;
-export type CreateCartInput = z.infer<typeof createCartSchema>;
+export type CartInsertInput = z.infer<typeof cartInsertSchema>;
+export type CreateCartInput = CartInsertInput;

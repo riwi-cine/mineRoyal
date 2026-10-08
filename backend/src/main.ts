@@ -18,13 +18,32 @@ async function bootstrap() {
   patchNestJsSwagger();
 
   /**
-   * Configuración principal de la documentación OpenAPI.
+   * Configuración principal de la documentación OpenAPI (Swagger).
    */
   const swaggerConfig = new DocumentBuilder()
-    .setTitle('mineRoyal v2')
-    .setDescription('swagger for MineRoyal cinema API')
+    .setTitle('MineRoyal Cinema API')
+    .setDescription(
+      'Documentación OpenAPI interactiva de la plataforma MineRoyal Cinema v2. Provee endpoints para autenticación segura (JWT/Refresh Token), gestión de usuarios y preferencias de ubicación, catálogo de películas y cartelera de funciones, selección interactiva de asientos con bloqueo concurrente (HU-010), y administración del carrito de compras con entradas, confitería y beneficios (HU-011).',
+    )
     .setVersion('2.0.0')
-    .addBearerAuth()
+    .addBearerAuth(
+      {
+        type: 'http',
+        scheme: 'bearer',
+        bearerFormat: 'JWT',
+        description: 'Token de acceso JWT emitido en /auth/login o /auth/register',
+      },
+      'bearer',
+    )
+    .addTag('auth', 'Autenticación, emisión y rotación de tokens JWT y cierre de sesión')
+    .addTag('users', 'Administración de usuarios, perfiles y preferencia de ubicación')
+    .addTag('movies', 'Catálogo de películas, recomendaciones personalizadas, géneros y formatos')
+    .addTag('functions', 'Programación de funciones de cine, horarios y tarifas de precios')
+    .addTag('locations', 'División geográfica: países, departamentos, ciudades y complejos de cine')
+    .addTag('seats', 'Distribución de salas y disponibilidad de asientos en tiempo real (HU-010)')
+    .addTag('reservations', 'Bloqueo temporal de sillas y cálculo de reservas tarifarias (HU-010)')
+    .addTag('cart', 'Gestión del carrito de compras, entradas, confitería y beneficios (HU-011)')
+    .addTag('health', 'Verificación de estado de salud del servicio y conectividad de base de datos')
     .build();
 
   /**

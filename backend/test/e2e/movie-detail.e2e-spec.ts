@@ -11,7 +11,7 @@ import { UserLocationDao } from '../../src/modules/users/dao/user-location.dao.j
 
 const movieId = '55555555-5555-4555-a555-555555555555';
 const otherMovieId = '66666666-6666-4666-a666-666666666666';
-const userId = '44444444-4444-4444-a444-444444444444';
+const userId = 1;
 const cityId = '33333333-3333-4333-a333-333333333333';
 
 const movie = {

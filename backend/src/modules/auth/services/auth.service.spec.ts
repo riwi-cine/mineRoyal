@@ -146,4 +146,101 @@ describe('AuthService', () => {
       'deben tener al menos 32 caracteres',
     );
   });
+
+  describe('verifyAccessToken', () => {
+    it('returns the verified payload when token is valid and conforms to schema', async () => {
+      const { service, jwtService } = buildService();
+      const payload = {
+        sub: user.id,
+        email: user.email,
+        sid: 'session-123',
+        tokenUse: 'access',
+        exp: Math.floor(Date.now() / 1000) + 900,
+      };
+      vi.mocked(jwtService.verifyAsync).mockResolvedValue(payload);
+
+      const result = await service.verifyAccessToken('valid-token');
+      expect(result).toEqual(payload);
+    });
+
+    it('throws unauthorized exception if JWT verification fails', async () => {
+      const { service, jwtService } = buildService();
+      vi.mocked(jwtService.verifyAsync).mockRejectedValue(new Error('jwt expired'));
+
+      await expect(service.verifyAccessToken('expired-token')).rejects.toThrow(UnauthorizedException);
+    });
+
+    it('throws unauthorized exception if payload claims are invalid', async () => {
+      const { service, jwtService } = buildService();
+      vi.mocked(jwtService.verifyAsync).mockResolvedValue({
+        sub: 'not-a-number',
+        tokenUse: 'refresh',
+      });
+
+      await expect(service.verifyAccessToken('invalid-claims-token')).rejects.toThrow(UnauthorizedException);
+    });
+  });
+
+  describe('session and token status checks', () => {
+    it('isAccessTokenRevoked returns true when present in redis, false otherwise', async () => {
+      const { service, redisService } = buildService();
+      vi.mocked(redisService.get).mockResolvedValueOnce('1').mockResolvedValueOnce(null);
+
+      expect(await service.isAccessTokenRevoked('revoked-token')).toBe(true);
+      expect(await service.isAccessTokenRevoked('active-token')).toBe(false);
+    });
+
+    it('hasActiveSession returns true when session exists in redis, false otherwise', async () => {
+      const { service, redisService } = buildService();
+      vi.mocked(redisService.get).mockResolvedValueOnce('session-data').mockResolvedValueOnce(null);
+
+      expect(await service.hasActiveSession('session-1')).toBe(true);
+      expect(await service.hasActiveSession('session-2')).toBe(false);
+    });
+
+    it('logout does not add to blacklist if token is already expired (ttl <= 0)', async () => {
+      const { service, redisService } = buildService();
+      const pastExpiration = Math.floor(Date.now() / 1000) - 100;
+
+      await service.logout(
+        { sub: user.id, email: user.email, sid: 'session-1', tokenUse: 'access', exp: pastExpiration },
+        'expired-token',
+      );
+
+      expect(redisService.set).not.toHaveBeenCalled();
+      expect(redisService.delete).toHaveBeenCalledWith(refreshSessionKey('session-1'));
+    });
+  });
+
+  describe('refresh edge cases', () => {
+    it('throws unauthorized when verify fails', async () => {
+      const { service, jwtService } = buildService();
+      vi.mocked(jwtService.verifyAsync).mockRejectedValue(new Error('invalid'));
+
+      await expect(service.refresh('bad-token')).rejects.toThrow(UnauthorizedException);
+    });
+
+    it('throws unauthorized when payload has invalid claims', async () => {
+      const { service, jwtService } = buildService();
+      vi.mocked(jwtService.verifyAsync).mockResolvedValue({
+        sub: 1,
+        sid: 123, // not string
+        tokenUse: 'access', // not refresh
+      });
+
+      await expect(service.refresh('bad-token')).rejects.toThrow(UnauthorizedException);
+    });
+
+    it('throws unauthorized when user does not exist in DB', async () => {
+      const { service, jwtService, userDao } = buildService();
+      vi.mocked(jwtService.verifyAsync).mockResolvedValue({
+        sub: 999,
+        sid: 'sid-1',
+        tokenUse: 'refresh',
+      });
+      vi.mocked(userDao.findById).mockResolvedValue(null);
+
+      await expect(service.refresh('valid-token-missing-user')).rejects.toThrow(UnauthorizedException);
+    });
+  });
 });

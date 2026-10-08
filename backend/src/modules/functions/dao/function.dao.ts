@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { MoreThan, Repository } from 'typeorm';
+import { In, MoreThan, Repository } from 'typeorm';
 import { Movie } from '../../movies/entities/movie.entity.js';
 import { CinemaFunction } from '../entities/function.entity.js';
 
@@ -80,6 +80,16 @@ export class FunctionDao {
   findSelectableById(functionId: string): Promise<CinemaFunction | null> {
     return this.functionDao.findOne({
       where: { id: functionId, active: true, startsAt: MoreThan(new Date()) },
+      relations: ['room', 'room.cinema', 'functionType'],
+    });
+  }
+
+  findByIds(functionIds: string[]): Promise<CinemaFunction[]> {
+    if (functionIds.length === 0) {
+      return Promise.resolve([]);
+    }
+    return this.functionDao.find({
+      where: { id: In(functionIds) },
       relations: ['room', 'room.cinema', 'functionType'],
     });
   }

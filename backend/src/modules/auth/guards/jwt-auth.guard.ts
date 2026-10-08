@@ -1,17 +1,6 @@
 import { CanActivate, ExecutionContext, Injectable, UnauthorizedException } from '@nestjs/common';
-import type { Request } from 'express';
 import { AuthService } from '../services/auth.service.js';
-
-interface AuthenticatedRequest extends Request {
-  accessToken?: string;
-  user?: {
-    sub: number;
-    email: string;
-    sid: string;
-    tokenUse: 'access';
-    exp: number;
-  };
-}
+import type { AuthenticatedRequest } from '../../../shared/interfaces/authenticated-request.interface.js';
 
 @Injectable()
 export class JwtAuthGuard implements CanActivate {

@@ -99,6 +99,27 @@ describe('UsersService', () => {
     await expect(service.restore(1)).rejects.toThrow(BadRequestException);
   });
 
+  it('throws conflict exception when trying to change email to a different one', async () => {
+    const { service, userDao } = buildService();
+    vi.mocked(userDao.findById).mockResolvedValue(activeUser);
+
+    await expect(service.update(1, { email: 'different@example.com' })).rejects.toThrow(ConflictException);
+  });
+
+  it('allows updating with the same email without throwing conflict', async () => {
+    const { service, userDao } = buildService();
+    vi.mocked(userDao.findById).mockResolvedValue(activeUser);
+
+    await expect(service.update(1, { email: 'ana@example.com' })).resolves.toBeDefined();
+  });
+
+  it('throws not found when restoring a user that does not exist', async () => {
+    const { service, userDao } = buildService();
+    vi.mocked(userDao.findById).mockResolvedValue(null);
+
+    await expect(service.restore(999)).rejects.toThrow(NotFoundException);
+  });
+
   it('throws not found when an active user does not exist', async () => {
     const { service, userDao } = buildService();
     vi.mocked(userDao.findById).mockResolvedValue(null);
