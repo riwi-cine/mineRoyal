@@ -117,7 +117,7 @@ pipeline {
                 echo "=== Inspección estática y Quality Gate con SonarQube ==="
                 withSonarQubeEnv('SonarQube') {
                     dir(env.APP_DIR) {
-                        sh './node_modules/.bin/sonar-scanner'
+                        sh 'pnpm exec sonar-scanner-npm'
                     }
                 }
                 timeout(time: 5, unit: 'MINUTES') {
