@@ -24,6 +24,7 @@ jenkins:
             dockerTemplateBase:
               image: "jenkins-node-agent:latest"
               pullCredentialsId: ""
+            pullStrategy: PULL_NEVER
             remoteFs: "/home/jenkins/agent"
             connector:
               attach: {}
