@@ -41,7 +41,7 @@ RUN pnpm run build
 
 # Poda las dependencias para aislar exclusivamente las requeridas en runtime
 RUN --mount=type=cache,id=pnpm,target=/pnpm/store \
-    pnpm prune --prod
+    pnpm prune --prod --ignore-scripts
 
 # Etapa 4: Producción - Imagen liviana, segura y sin herramientas de build
 FROM node:20-alpine AS production

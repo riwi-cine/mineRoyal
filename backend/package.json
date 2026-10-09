@@ -10,7 +10,7 @@
     "node": ">=20.19.0"
   },
   "scripts": {
-    "prepare": "cd .. && husky backend/.husky",
+    "prepare": "cd .. && (husky backend/.husky 2>/dev/null || true)",
     "start": "nest start",
     "start:dev": "nest start --watch",
     "start:debug": "nest start --debug --watch",
