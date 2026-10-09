@@ -97,9 +97,7 @@ describe('SeatService', () => {
 
   describe('lockSeats', () => {
     it('successfully locks available seats', async () => {
-      seatDao.findCartLocks.mockResolvedValueOnce([
-        { seatId: 'seat-1', cartId: 'cart-1' } as SeatLock,
-      ]);
+      seatDao.findCartLocks.mockResolvedValueOnce([{ seatId: 'seat-1', cartId: 'cart-1' } as SeatLock]);
 
       const result = await service.lockSeats({
         functionId: 'func-1',
@@ -113,9 +111,9 @@ describe('SeatService', () => {
     });
 
     it('throws BadRequestException when no seats are provided', async () => {
-      await expect(
-        service.lockSeats({ functionId: 'func-1', cartId: 'cart-1', seatIds: [] }),
-      ).rejects.toThrow(BadRequestException);
+      await expect(service.lockSeats({ functionId: 'func-1', cartId: 'cart-1', seatIds: [] })).rejects.toThrow(
+        BadRequestException,
+      );
     });
 
     it('throws BadRequestException when exceeding maximum seats per reservation', async () => {
@@ -129,17 +127,17 @@ describe('SeatService', () => {
     it('throws NotFoundException when function is missing during lock', async () => {
       seatDao.findFunctionForSelection.mockResolvedValueOnce(null);
 
-      await expect(
-        service.lockSeats({ functionId: 'func-1', cartId: 'cart-1', seatIds: ['seat-1'] }),
-      ).rejects.toThrow(NotFoundException);
+      await expect(service.lockSeats({ functionId: 'func-1', cartId: 'cart-1', seatIds: ['seat-1'] })).rejects.toThrow(
+        NotFoundException,
+      );
     });
 
     it('throws UnprocessableEntityException when function room is missing during lock', async () => {
       seatDao.findFunctionForSelection.mockResolvedValueOnce({ id: 'func-1', room: null });
 
-      await expect(
-        service.lockSeats({ functionId: 'func-1', cartId: 'cart-1', seatIds: ['seat-1'] }),
-      ).rejects.toThrow(UnprocessableEntityException);
+      await expect(service.lockSeats({ functionId: 'func-1', cartId: 'cart-1', seatIds: ['seat-1'] })).rejects.toThrow(
+        UnprocessableEntityException,
+      );
     });
 
     it('throws BadRequestException if seat does not belong to the room', async () => {
@@ -149,16 +147,14 @@ describe('SeatService', () => {
     });
 
     it('throws BadRequestException if selecting a disabled seat', async () => {
-      await expect(
-        service.lockSeats({ functionId: 'func-1', cartId: 'cart-1', seatIds: ['seat-3'] }),
-      ).rejects.toThrow(BadRequestException);
+      await expect(service.lockSeats({ functionId: 'func-1', cartId: 'cart-1', seatIds: ['seat-3'] })).rejects.toThrow(
+        BadRequestException,
+      );
     });
 
     it('rejects seats that are already sold or locked by another cart', async () => {
       seatDao.findSoldSeatIds.mockResolvedValueOnce(['seat-1']);
-      seatDao.findActiveLocks.mockResolvedValueOnce([
-        { seatId: 'seat-2', cartId: 'other-cart' } as SeatLock,
-      ]);
+      seatDao.findActiveLocks.mockResolvedValueOnce([{ seatId: 'seat-2', cartId: 'other-cart' } as SeatLock]);
       seatDao.findCartLocks.mockResolvedValueOnce([]);
 
       const result = await service.lockSeats({
@@ -188,9 +184,7 @@ describe('SeatService', () => {
   describe('getReservationSummary', () => {
     it('returns reservation summary with pricing breakdown when locks exist', async () => {
       const now = new Date();
-      seatDao.findCartLocks.mockResolvedValueOnce([
-        { seatId: 'seat-1', cartId: 'cart-1', expiresAt: now } as SeatLock,
-      ]);
+      seatDao.findCartLocks.mockResolvedValueOnce([{ seatId: 'seat-1', cartId: 'cart-1', expiresAt: now } as SeatLock]);
 
       const summary = await service.getReservationSummary('func-1', 'cart-1');
 
@@ -213,9 +207,7 @@ describe('SeatService', () => {
     it('throws NotFoundException when function is not found for summary', async () => {
       seatDao.findFunctionForSelection.mockResolvedValueOnce(null);
 
-      await expect(service.getReservationSummary('missing-func', 'cart-1')).rejects.toThrow(
-        NotFoundException,
-      );
+      await expect(service.getReservationSummary('missing-func', 'cart-1')).rejects.toThrow(NotFoundException);
     });
   });
 });
