@@ -2,11 +2,12 @@ FROM jenkins/inbound-agent:alpine
 
 USER root
 
-# Instalar Node.js, npm, Docker CLI, Git, Bash y dependencias de sistema
+# Instalar Node.js, npm, Docker CLI, Buildx, Git, Bash y dependencias de sistema
 RUN apk add --no-cache \
     nodejs \
     npm \
     docker-cli \
+    docker-cli-buildx \
     bash \
     curl \
     git

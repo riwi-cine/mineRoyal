@@ -12,6 +12,8 @@ pipeline {
         APP_DIR             = 'backend'
         DOCKER_IMAGE_NAME   = "${env.DOCKER_USERNAME ?: 'mineroyale'}/mineroyale-backend"
         IMAGE_TAG           = "${GIT_COMMIT.substring(0,7)}"
+        DOCKER_HOST         = 'tcp://172.17.0.1:2375'
+        DOCKER_BUILDKIT     = '1'
         // Credenciales para pruebas y calidad
         DB_TEST_PASSWORD    = credentials('db-password')
         SONAR_TOKEN         = credentials('sonar-token')
