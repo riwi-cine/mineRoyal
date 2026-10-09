@@ -10,13 +10,14 @@ pipeline {
     }
     environment {
         APP_DIR             = 'backend'
-        DOCKER_IMAGE_NAME   = "${DOCKER_USERNAME}/mineroyale-backend"
+        DOCKER_IMAGE_NAME   = "${env.DOCKER_USERNAME ?: 'mineroyale'}/mineroyale-backend"
         IMAGE_TAG           = "${GIT_COMMIT.substring(0,7)}"
-        DEPLOY_HOST         = "${DEPLOY_SERVER_HOST}"
+        // Credenciales para pruebas y calidad
         DB_TEST_PASSWORD    = credentials('db-password')
         SONAR_TOKEN         = credentials('sonar-token')
-        DOCKER_CREDENTIALS  = credentials('dockerhub')
-        DEPLOY_SSH          = credentials('deploy-ssh')
+        // DOCKER_CREDENTIALS  = credentials('dockerhub')     // Descomentar si deseas subir a Docker Hub
+        // DEPLOY_HOST         = "${DEPLOY_SERVER_HOST}"        // Descomentar si configuras servidor remoto
+        // DEPLOY_SSH          = credentials('deploy-ssh')      // Descomentar si configuras servidor remoto
     }
     stages {
         stage('1. Checkout SCM') {
@@ -33,7 +34,7 @@ pipeline {
                 echo "=== Instalando dependencias con pnpm ==="
                 dir(env.APP_DIR) {
                     sh '''
-                        corepack enable pnpm
+                        corepack enable pnpm 2>/dev/null || true
                         pnpm install --frozen-lockfile
                     '''
                 }
@@ -130,22 +131,15 @@ pipeline {
                 branch 'main'
             }
             steps {
-                echo "=== Estrategia 'Build Once': Construcción y publicación de imagen inmutable ==="
-                script {
-                    docker.withRegistry('', 'dockerhub') {
-                        def img = docker.build(
-                            "${DOCKER_IMAGE_NAME}:${IMAGE_TAG}",
-                            "--target production -f ${APP_DIR}/Dockerfile ${APP_DIR}"
-                        )
-                        img.push()
-                        img.push('latest')
-                        env.IMAGE_BUILT = "${DOCKER_IMAGE_NAME}:${IMAGE_TAG}"
-                    }
+                echo "=== Estrategia 'Build Once': Construcción de imagen Docker inmutable ==="
+                dir(env.APP_DIR) {
+                    sh "docker build --target production -t mineroyale-backend:${IMAGE_TAG} -t mineroyale-backend:latest ."
                 }
-                echo "Imagen Docker construida y publicada: ${env.IMAGE_BUILT}"
+                echo "✅ Imagen Docker construida exitosamente: mineroyale-backend:${IMAGE_TAG}"
             }
         }
 
+        /*
         stage('8. Deploy to Application Server') {
             when {
                 branch 'main'
@@ -175,6 +169,7 @@ pipeline {
                 }
             }
         }
+        */
     }
     post {
         always {

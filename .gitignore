@@ -74,3 +74,8 @@ report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
 # SonarQube
 .scannerwork
 backend/.scannerwork
+
+# SSH Keys
+id_*
+*.pub
+backend/id_*

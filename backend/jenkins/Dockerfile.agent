@@ -2,7 +2,7 @@ FROM jenkins/inbound-agent:alpine
 
 USER root
 
-# Instalar Node.js 20, npm, Docker CLI, Git, Bash y herramientas de compilación
+# Instalar Node.js, npm, Docker CLI, Git, Bash y dependencias de sistema
 RUN apk add --no-cache \
     nodejs \
     npm \
@@ -11,12 +11,11 @@ RUN apk add --no-cache \
     curl \
     git
 
-# Habilitar corepack y pnpm
-RUN npm install -g pnpm
+# Instalar corepack y pnpm globalmente como root
+RUN npm install -g corepack pnpm && corepack enable pnpm
 
-# Configurar directorio del agente con permisos
+# Configurar directorio del agente con permisos completos
 RUN mkdir -p /home/jenkins/agent && chown -R jenkins:jenkins /home/jenkins
 
 USER jenkins
 WORKDIR /home/jenkins/agent
-
