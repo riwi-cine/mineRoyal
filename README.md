@@ -1,3 +1,23 @@
+<p align="center">
+  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
+</p>
+
+  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
+    <p align="center">
+<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
+<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
+<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
+<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
+<a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
+</p>
+
+<p align="center">
+  <a href="https://sonarcloud.io/project/overview?id=riwi-cine_mineRoyal" target="_blank"><img src="https://sonarcloud.io/api/project_badges/measure?project=riwi-cine_mineRoyal&metric=alert_status" alt="SonarCloud Quality Gate" /></a>
+  <a href="https://sonarcloud.io/project/overview?id=riwi-cine_mineRoyal" target="_blank"><img src="https://sonarcloud.io/api/project_badges/measure?project=riwi-cine_mineRoyal&metric=coverage" alt="SonarCloud Coverage" /></a>
+  <a href="https://sonarcloud.io/project/overview?id=riwi-cine_mineRoyal" target="_blank"><img src="https://sonarcloud.io/api/project_badges/measure?project=riwi-cine_mineRoyal&metric=bugs" alt="Bugs" /></a>
+  <a href="https://sonarcloud.io/project/overview?id=riwi-cine_mineRoyal" target="_blank"><img src="https://sonarcloud.io/api/project_badges/measure?project=riwi-cine_mineRoyal&metric=vulnerabilities" alt="Vulnerabilities" /></a>
+</p>
+
 # 🎬 mineRoyal Backend API
 
 > API REST empresarial para la plataforma de reserva y compra de boletos de cine **mineRoyal**, desarrollada con **NestJS**, **TypeScript**, **PostgreSQL**, **Redis**, pruebas automatizadas con **Vitest**, aseguramiento estático de calidad con **SonarCloud** y pipeline de integración continua orquestado en **Jenkins**.
@@ -281,6 +301,17 @@ Para detalles avanzados de ingeniería y resolución técnica, consulta los manu
 
 ---
 
+## 🌐 Recursos y Comunidad NestJS
+
+- [Documentación oficial de NestJS](https://docs.nestjs.com)
+- [Comunidad oficial en Discord](https://discord.gg/G7Qnnhy)
+- [Cursos oficiales de NestJS](https://courses.nestjs.com/)
+- [NestJS Devtools](https://devtools.nestjs.com)
+- Autor oficial de NestJS: [Kamil Myśliwiec](https://twitter.com/kammysliwiec) | Web: [https://nestjs.com](https://nestjs.com/) | Twitter: [@nestframework](https://twitter.com/nestframework)
+
+---
+
 ## 📄 Licencia
 
 Este proyecto es propiedad del equipo de desarrollo de **mineRoyal** y está bajo licencia de uso educativo y corporativo.
+El framework base NestJS está bajo licencia [MIT](https://github.com/nestjs/nest/blob/master/LICENSE).
